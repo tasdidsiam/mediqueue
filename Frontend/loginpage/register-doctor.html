@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register as Doctor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Inter] overflow-hidden">
+
+<div class="w-full h-screen flex items-center justify-between px-[80px]">
+
+    <a href="/" class="text-black">
+        <div>
+            <h1 class="text-[48px] font-black mb-2">MediQueue</h1>
+            <p class="text-[20px] font-normal">Smart Hospital Management</p>
+        </div>
+    </a>
+
+    <div class="w-[380px] bg-white rounded-[16px] px-[26px] pt-[28px] pb-[30px]
+                text-center shadow-[0_18px_35px_rgba(0,0,0,0.25)]">
+
+        <h2 class="text-[22px] font-bold mb-[22px]">Register as Doctor</h2>
+
+        <form id="doctorRegForm" onsubmit="registerDoctor(event)">
+            <input type="text" id="doctorName" placeholder="Full name" required
+                   class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+            <input type="email" id="doctorRegEmail" placeholder="Email address" required
+                   class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+            <input type="password" id="doctorRegPassword" placeholder="Password" required
+                   class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+            <input type="password" id="doctorConfirmPassword" placeholder="Confirm password" required
+                   class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+            <select id="doctorSpecialization" required
+                    class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px] bg-white">
+                <option value="">Select Specialization</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Psychiatry">Psychiatry</option>
+                <option value="Radiology">Radiology</option>
+                <option value="General Medicine">General Medicine</option>
+                <option value="Surgery">Surgery</option>
+                <option value="Dentistry">Dentistry</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <input type="text" id="doctorLicense" placeholder="License Number" required
+                   class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+            <button id="signupBtn" type="submit"
+class="w-[70%] h-[38px] mt-1 border border-black rounded-full
+text-[13px] font-bold cursor-pointer transition
+hover:bg-black hover:text-white">
+    Sign up
+</button>
+        </form>
+
+        <p class="text-[14px] mt-[14px]">
+            Already have an account?
+            <a href="login.html" class="font-bold text-black">Sign in</a>
+        </p>
+
+    </div>
+
+</div>
+
+<script src="clientlogin.js"></script>
+</body>
+</html>

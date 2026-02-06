@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediQueue – Schedule</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+            colors: {
+              appBg: "#D9D9D9",
+              logoutRed: "#A82626",
+              activeBlue: "#8FD2FF",
+              fieldBg: "#D9D3D3",
+              fieldText: "#B7B0B0",
+            },
+            boxShadow: {
+              soft: "0 18px 30px rgba(0,0,0,0.22)",
+              btn: "0 10px 16px rgba(0,0,0,0.25)",
+              card: "0 3px 0 rgba(0,0,0,0.25), 0 10px 22px rgba(0,0,0,0.16)",
+              field: "0 8px 16px rgba(0,0,0,0.18)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-[#e6e6e6] min-h-screen font-sans text-black">
+    <div class="min-h-screen w-full">
+      <!-- Top Bar -->
+      <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="doctordashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none"
+            />
+          </div>
+          <button class="text-gray-700">🔔</button>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2iQvAPNLkPLllOM8WVfxC7-sZoa7_SfU9g&s"
+            alt="Profile"
+            class="w-[55px] h-[55px] rounded-full"
+          />
+          <button
+            class="bg-logoutRed bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="px-[60px] flex items-center gap-8">
+        <a
+          href="doctordashboard.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Dashboard
+        </a>
+        <a
+          href="schedultab.html"
+          class="nav-tab font-semibold border-b-2 border-black pb-1"
+        >
+          Schedule
+        </a>
+        <a
+          href="livesession.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Live Session
+        </a>
+      </div>
+
+      <div class="px-[60px] pb-[60px]">
+
+      <!-- Header Row -->
+      <div class="mt-8 flex items-center justify-between">
+        <div class="flex items-center gap-8">
+          <h2 class="text-2xl font-extrabold">My Schedule</h2>
+          <button
+            onclick="openCreateModal()"
+            class="flex items-center gap-2 rounded-xl bg-black px-8 py-3 text-sm font-bold text-white shadow-btn transition hover:bg-gray-800"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            New Appointment
+          </button>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex h-11 w-80 items-center gap-3 rounded-xl bg-white px-4 shadow-soft">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="11" cy="11" r="7" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 20l-3.5-3.5" />
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search appointments..."
+              class="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-gray-400"
+            />
+          </div>
+          <select class="h-11 rounded-xl bg-white px-4 text-sm font-semibold shadow-soft outline-none cursor-pointer">
+            <option>All Dates</option>
+            <option>Today</option>
+            <option>This Week</option>
+            <option>This Month</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="mt-8 grid grid-cols-4 gap-6">
+        <div class="group rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium opacity-90">Total Appointments</p>
+              <p id="totalAppointments" class="mt-2 text-4xl font-extrabold">0</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="group rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium opacity-90">Total Tokens</p>
+              <p id="totalTokens" class="mt-2 text-4xl font-extrabold">0</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="group rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium opacity-90">Today's Sessions</p>
+              <p id="todaySessions" class="mt-2 text-4xl font-extrabold">0</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="group rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-medium opacity-90">Avg. Tokens Per Session</p>
+              <p id="avgTokensPerSession" class="mt-2 text-4xl font-extrabold">0</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule List -->
+      <div class="mt-8">
+        <div class="space-y-4" id="scheduleList">
+          <!-- Appointments will be rendered here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Appointment Modal -->
+    <div id="createModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 shadow-2xl w-[600px] max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-extrabold">Create New Appointment</h2>
+          <button onclick="closeCreateModal()" class="text-gray-500 hover:text-gray-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <form onsubmit="createAppointment(event)" class="space-y-5">
+          <div>
+            <label class="block text-sm font-bold mb-2 text-gray-700">Appointment Title</label>
+            <input 
+              type="text" 
+              id="appointmentTitle" 
+              required
+              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+              placeholder="e.g., Morning Consultation"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold mb-2 text-gray-700">Date</label>
+              <input 
+                type="date" 
+                id="appointmentDate" 
+                required
+                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-bold mb-2 text-gray-700">Number of Patients</label>
+              <input 
+                type="number" 
+                id="patientCount" 
+                required
+                min="1"
+                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                placeholder="e.g., 5"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold mb-2 text-gray-700">Start Time (9 AM - 7 PM)</label>
+              <div onclick="document.getElementById('startTime').showPicker()" class="cursor-pointer">
+                <input 
+                  type="time" 
+                  id="startTime" 
+                  required
+                  min="09:00"
+                  max="19:00"
+                  onchange="validateTimeInput(this)"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-bold mb-2 text-gray-700">End Time (9 AM - 7 PM)</label>
+              <div onclick="document.getElementById('endTime').showPicker()" class="cursor-pointer">
+                <input 
+                  type="time" 
+                  id="endTime" 
+                  required
+                  min="09:00"
+                  max="19:00"
+                  onchange="validateTimeInput(this)"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold mb-2 text-gray-700">Token Interval</label>
+            <select 
+              id="tokenInterval" 
+              required
+              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+            >
+              <option value="">Select interval...</option>
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15">15 minutes</option>
+              <option value="20">20 minutes</option>
+              <option value="30">30 minutes</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold mb-2 text-gray-700">Delay Penalty</label>
+            <select 
+              id="delayPenalty" 
+              required
+              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+            >
+              <option value="">Select penalty...</option>
+              <option value="none">No penalty</option>
+              <option value="skip1">Skip 1 token</option>
+              <option value="skip2">Skip 2 tokens</option>
+              <option value="cancel">Cancel token</option>
+            </select>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="button"
+              onclick="closeCreateModal()"
+              class="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              class="flex-1 px-6 py-3 rounded-xl bg-black text-sm font-bold text-white shadow-btn hover:bg-gray-800 transition"
+            >
+              Create Appointment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Success Dialog Modal -->
+    <div id="successDialog" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-2xl px-16 py-12 shadow-2xl">
+        <div class="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 mx-auto">
+          <svg class="h-14 w-14" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="mt-6 text-2xl font-bold text-center text-gray-800">
+          Appointment Created Successfully!
+        </div>
+        <div class="flex justify-center">
+          <button
+            onclick="closeSuccessDialog()"
+            class="mt-8 px-10 py-3 rounded-xl bg-black text-base font-bold text-white shadow-btn hover:bg-gray-800 transition"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appointment Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 shadow-2xl w-[700px]">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-extrabold">Appointment Details</h2>
+          <button onclick="closeDetailsModal()" class="text-gray-500 hover:text-gray-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div id="detailsContent" class="space-y-4">
+          <!-- Details will be populated dynamically -->
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            onclick="closeDetailsModal()"
+            class="px-8 py-3 rounded-xl bg-black text-sm font-bold text-white shadow-btn hover:bg-gray-800 transition"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // API configuration
+      const API_BASE_URL = 'http://localhost:5000'; // Backend server URL
+      let appointments = [];
+
+      // Get token from localStorage
+      function getToken() {
+        return localStorage.getItem('doctorToken');
+      }
+
+      // Validate time input to ensure it's between 9 AM and 7 PM
+      function validateTimeInput(input) {
+        const value = input.value;
+        if (!value) return;
+        
+        const [hour, minute] = value.split(':').map(Number);
+        
+        // Silently constrain to valid range
+        if (hour < 9) {
+          input.value = '09:00';
+        } else if (hour > 19 || (hour === 19 && minute > 0)) {
+          input.value = '19:00';
+        }
+      }
+
+      // Fetch today's stats
+      async function fetchStats() {
+        try {
+          const token = getToken();
+          if (!token) {
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/doctors/getappointmentnumberandpatienttoday`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch stats');
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            const { appointmentsCount, totalPatients } = result.data;
+            
+            // Update cards
+            document.getElementById('totalAppointments').textContent = appointmentsCount || 0;
+            document.getElementById('totalTokens').textContent = totalPatients || 0;
+            document.getElementById('todaySessions').textContent = appointmentsCount || 0;
+            
+            // Calculate average tokens per session
+            const avgTokens = appointmentsCount > 0 ? (totalPatients / appointmentsCount).toFixed(1) : 0;
+            document.getElementById('avgTokensPerSession').textContent = avgTokens;
+          }
+        } catch (error) {
+          console.error('Error fetching stats:', error);
+        }
+      }
+
+      // Fetch all appointments from backend
+      async function fetchAppointments() {
+        try {
+          const token = getToken();
+          if (!token) {
+            alert('Please login first');
+            window.location.href = '../loginpage/login-doctor.html';
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/doctors/getalldoctorsappointment`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch appointments');
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            appointments = result.data.map(apt => ({
+              id: apt._id,
+              title: apt.title,
+              date: new Date(apt.appointmentDate).toISOString().split('T')[0],
+              startTime: new Date(apt.startTime).toTimeString().slice(0, 5),
+              endTime: new Date(apt.endTime).toTimeString().slice(0, 5),
+              patients: apt.queueTokens?.length || 0,
+              status: mapStatus(apt.status)
+            }));
+            renderAppointments();
+          }
+        } catch (error) {
+          console.error('Error fetching appointments:', error);
+          // Show fallback UI or error message
+        }
+      }
+
+      // Map backend status to display status
+      function mapStatus(status) {
+        switch(status) {
+          case 'ongoing': return 'Active';
+          case 'completed': return 'Completed';
+          case 'scheduled': return 'Upcoming';
+          case 'cancelled': return 'Cancelled';
+          default: return 'Upcoming';
+        }
+      }
+
+      // Render appointments in the UI
+      function renderAppointments() {
+        const scheduleList = document.getElementById('scheduleList');
+        if (!scheduleList) return;
+
+        if (appointments.length === 0) {
+          scheduleList.innerHTML = `
+            <div class="col-span-full rounded-2xl bg-white p-12 shadow-card text-center">
+              <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <h3 class="mt-4 text-xl font-bold text-gray-800">No Appointments Yet</h3>
+              <p class="mt-2 text-sm text-gray-600">Create your first appointment to get started</p>
+            </div>
+          `;
+          return;
+        }
+
+        scheduleList.innerHTML = appointments.map((apt, index) => {
+          const colors = ['blue', 'purple', 'green', 'orange', 'red', 'indigo'];
+          const color = colors[index % colors.length];
+          const date = new Date(apt.date);
+          
+          return `
+            <div class="rounded-2xl bg-white p-6 shadow-card transition hover:shadow-xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-6">
+                  <div class="flex h-20 w-20 flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-${color}-500 to-${color}-600 text-white">
+                    <span class="text-3xl font-extrabold">${date.getDate()}</span>
+                    <span class="text-xs font-semibold opacity-90">${date.toLocaleString('en-US', { month: 'short' }).toUpperCase()}</span>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-extrabold">${apt.title}</h3>
+                    <div class="mt-2 flex items-center gap-6 text-sm font-semibold text-gray-600">
+                      <div class="flex items-center gap-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="text-${color}-600 font-bold">${apt.patients} Patients</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="rounded-xl ${
+                    apt.status === 'Active' ? 'bg-green-100 text-green-700' : 
+                    apt.status === 'Completed' ? 'bg-gray-100 text-gray-700' :
+                    apt.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  } px-5 py-2 text-sm font-bold">
+                    ${apt.status}
+                  </div>
+                  ${apt.status === 'Active' ? `
+                    <button onclick="window.location.href='livesession.html?appointmentId=${apt.id}'" class="rounded-xl bg-gradient-to-r from-green-600 to-green-700 px-6 py-2 text-sm font-bold text-white shadow-btn transition hover:from-green-700 hover:to-green-800">
+                      Live Session
+                    </button>
+                  ` : ''}
+                  <button onclick="viewAppointment('${apt.id}')" class="rounded-xl bg-black px-6 py-2 text-sm font-bold text-white shadow-btn transition hover:bg-gray-800">
+                    View Details
+                  </button>
+                  <button onclick="deleteAppointment('${apt.id}')" class="rounded-xl border-2 border-red-500 px-4 py-2 text-sm font-bold text-red-500 transition hover:bg-red-50">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function openCreateModal() {
+        document.getElementById('createModal').classList.remove('hidden');
+        document.getElementById('createModal').classList.add('flex');
+      }
+
+      function closeCreateModal() {
+        document.getElementById('createModal').classList.add('hidden');
+        document.getElementById('createModal').classList.remove('flex');
+        // Reset form
+        document.querySelector('form').reset();
+      }
+
+      async function createAppointment(event) {
+        event.preventDefault();
+        
+        const title = document.getElementById('appointmentTitle').value;
+        const date = document.getElementById('appointmentDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const patientCount = parseInt(document.getElementById('patientCount').value);
+        const tokenInterval = parseInt(document.getElementById('tokenInterval').value);
+        const delayPenalty = document.getElementById('delayPenalty').value;
+
+        // Validate time range (9 AM to 7 PM)
+        const [startHour, startMinute] = startTime.split(':').map(Number);
+        const [endHour, endMinute] = endTime.split(':').map(Number);
+        
+        if (startHour < 9 || startHour > 19 || (startHour === 19 && startMinute > 0)) {
+          alert('Start time must be between 9:00 AM and 7:00 PM');
+          return;
+        }
+        
+        if (endHour < 9 || endHour > 19 || (endHour === 19 && endMinute > 0)) {
+          alert('End time must be between 9:00 AM and 7:00 PM');
+          return;
+        }
+
+        // Combine date with time
+        const startDateTime = new Date(`${date}T${startTime}`);
+        const endDateTime = new Date(`${date}T${endTime}`);
+
+        const appointmentData = {
+          title: title,
+          maxpatients: patientCount,
+          appointmentDate: date,
+          startTime: startDateTime.toISOString(),
+          endTime: endDateTime.toISOString()
+        };
+
+        try {
+          const token = getToken();
+          if (!token) {
+            alert('Please login first');
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/doctors/create-appointment`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(appointmentData)
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Close modal and show success
+            closeCreateModal();
+            document.getElementById('successDialog').classList.remove('hidden');
+            document.getElementById('successDialog').classList.add('flex');
+            
+            // Refresh appointments list
+            await fetchAppointments();
+          } else {
+            alert(result.message || 'Failed to create appointment');
+          }
+        } catch (error) {
+          console.error('Error creating appointment:', error);
+          alert('Error creating appointment. Please try again.');
+        }
+      }
+
+      function closeSuccessDialog() {
+        document.getElementById('successDialog').classList.add('hidden');
+        document.getElementById('successDialog').classList.remove('flex');
+      }
+
+      function viewAppointment(id) {
+        const appointment = appointments.find(apt => apt.id === id);
+        if (!appointment) return;
+        
+        const detailsContent = document.getElementById('detailsContent');
+        detailsContent.innerHTML = `
+          <div class="bg-gray-50 rounded-xl p-6 space-y-4">
+            <div>
+              <span class="text-sm font-semibold text-gray-600">Title</span>
+              <p class="text-lg font-bold text-gray-900 mt-1">${appointment.title}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="text-sm font-semibold text-gray-600">Date</span>
+                <p class="text-lg font-bold text-gray-900 mt-1">${new Date(appointment.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+              </div>
+              <div>
+                <span class="text-sm font-semibold text-gray-600">Time</span>
+                <p class="text-lg font-bold text-gray-900 mt-1">${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="text-sm font-semibold text-gray-600">Number of Patients</span>
+                <p class="text-lg font-bold text-blue-600 mt-1">${appointment.patients} Patients</p>
+              </div>
+              <div>
+                <span class="text-sm font-semibold text-gray-600">Status</span>
+                <p class="text-lg font-bold ${
+                  appointment.status === 'Active' ? 'text-green-600' : 
+                  appointment.status === 'Completed' ? 'text-gray-600' :
+                  appointment.status === 'Cancelled' ? 'text-red-600' :
+                  'text-yellow-600'
+                } mt-1">${appointment.status}</p>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('detailsModal').classList.remove('hidden');
+        document.getElementById('detailsModal').classList.add('flex');
+      }
+
+      function closeDetailsModal() {
+        document.getElementById('detailsModal').classList.add('hidden');
+        document.getElementById('detailsModal').classList.remove('flex');
+      }
+
+      async function deleteAppointment(id) {
+        if (confirm('Are you sure you want to delete this appointment?')) {
+          try {
+            const token = getToken();
+            // Note: You'll need to implement a delete endpoint in your backend
+            // For now, just remove from UI
+            appointments = appointments.filter(apt => apt.id !== id);
+            renderAppointments();
+            alert('Appointment deleted successfully!');
+          } catch (error) {
+            console.error('Error deleting appointment:', error);
+            alert('Error deleting appointment. Please try again.');
+          }
+        }
+      }
+
+      function formatTime(time24) {
+        if (!time24) return '';
+        const [hours, minutes] = time24.split(':');
+        const hour = parseInt(hours);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minutes} ${ampm}`;
+      }
+
+      // Logout functionality
+      document.querySelector('.bg-logoutRed')?.addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('token');
+          window.location.href = '../loginpage/login-doctor.html';
+        }
+      });
+
+      // Load appointments when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        fetchAppointments();
+        fetchStats();
+      });
+    </script>
+    </div>
+  </body>
+</html>

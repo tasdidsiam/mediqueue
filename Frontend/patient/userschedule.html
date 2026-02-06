@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediQueue - My Schedule</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="patient.js"></script>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    .calendar-day {
+      transition: all 0.2s ease;
+    }
+    
+    .calendar-day:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .has-appointment {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .today-date {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+    
+    .appointment-card {
+      transition: all 0.3s ease;
+    }
+    
+    .appointment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .status-badge {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body class="bg-[#e6e6e6] min-h-screen">
+
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="dashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+    <div class="flex items-center gap-6">
+      <div class="relative">
+        <input type="text" placeholder="Search..." class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none" />
+      </div>
+      <button class="text-gray-700">🔔</button>
+      <img id="userAvatar" src="https://img.freepik.com/premium-vector/round-man-character-mockup-icon-flat-color-round-man-icon-blue-jacket-brown-hair-character-template-vector-icon_774778-2423.jpg" class="w-[55px] h-[55px] rounded-full" />
+      <button data-nav="logout" class="bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer">Logout</button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="px-[60px] flex items-center gap-8">
+    <button data-nav="dashboard" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Dashboard</button>
+    <button data-tab="schedule" class="nav-tab font-semibold border-b-2 border-black pb-1">Schedule</button>
+    <button data-nav="doctors" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Doctors</button>
+    <button data-nav="tokens" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Token List</button>
+  </div>
+
+  <!-- Schedule Header -->
+  <div class="px-[60px] mt-4">
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl px-6 py-2 w-64 shadow-lg">
+      <h2 class="text-white font-semibold">My Schedule</h2>
+    </div>
+  </div>
+
+  <!-- Calendar Section -->
+  <div class="px-[60px] mt-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6">
+      <div class="max-w-5xl mx-auto">
+      <!-- Calendar Header -->
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="previousMonth()" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        
+        <div class="text-center">
+          <h2 id="currentMonth" class="text-xl font-bold text-gray-800"></h2>
+          <p class="text-xs text-gray-500" id="currentYear"></p>
+        </div>
+        
+        <button onclick="nextMonth()" class="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Week Days -->
+      <div class="grid grid-cols-7 gap-2 mb-2">
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Sun</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Mon</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Tue</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Wed</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Thu</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Fri</div>
+        <div class="text-center font-semibold text-gray-600 py-1 text-sm">Sat</div>
+      </div>
+
+      <!-- Calendar Days -->
+      <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+        <!-- Calendar days will be generated dynamically -->
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointments List -->
+  <div class="px-[60px] mt-4 pb-8">
+    <div class="bg-white rounded-2xl shadow-xl p-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">
+        Appointments on <span id="selectedDate" class="text-purple-600"></span>
+      </h2>
+      
+      <div id="appointmentsList" class="space-y-4">
+        <!-- Appointments will be displayed here -->
+      </div>
+      
+      <div id="noAppointments" class="text-center py-12 hidden">
+        <div class="text-6xl mb-4">📅</div>
+        <p class="text-gray-500 text-lg">No appointments scheduled for this day</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="userschedule.js"></script>
+
+</body>
+</html>

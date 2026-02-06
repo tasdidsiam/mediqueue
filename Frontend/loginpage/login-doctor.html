@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login - MediQueue</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Inter] overflow-hidden">
+
+<div class="w-full h-screen flex justify-between items-center px-[80px]">
+
+    <a href="/" class="text-black">
+        <div class="max-w-[400px]">
+            <div class="text-[48px] font-black">MediQueue</div>
+            <div class="text-[20px] mt-2">Smart Hospital Management</div>
+        </div>
+    </a>
+
+    <div class="w-[420px] bg-white rounded-[20px] px-[30px] py-[35px]
+                text-center shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+
+        <h2 class="font-[Nunito Sans] text-[32px] font-bold mb-[26px]">Login</h2>
+
+        <form id="doctorLoginForm" onsubmit="loginDoctor(event)">
+            <input type="email" id="doctorEmail" placeholder="Email" required
+                   class="w-full h-[45px] mb-[18px] px-[14px]
+                          border border-[#ccc] rounded-[8px] text-[14px]">
+
+            <input type="password" id="doctorPassword" placeholder="Password" required
+                   class="w-full h-[45px] mb-[18px] px-[14px]
+                          border border-[#ccc] rounded-[8px] text-[14px]">
+
+            <button type="submit" id="doctorLoginBtn" class="w-[70%] h-[45px] bg-black text-white rounded-full
+                           text-[14px] font-semibold cursor-pointer transition
+                           hover:opacity-90">
+                Login
+            </button>
+        </form>
+
+        <p class="text-[14px] my-[20px]">Don't have an account?</p>
+
+        <a href="register.html">
+            <button class="w-[70%] h-[45px] bg-white border border-black rounded-full
+                           text-[14px] font-semibold cursor-pointer transition
+                           hover:bg-black hover:text-white">
+                Sign up
+            </button>
+        </a>
+
+    </div>
+
+</div>
+
+<script src="clientlogin.js"></script>
+    <script>
+(function () {
+  // Clear previous history entry
+  window.history.pushState(null, null, location.href);
+
+  window.onpopstate = function () {
+    window.history.go(1);
+  };
+})();
+</script>
+</body>
+</html>

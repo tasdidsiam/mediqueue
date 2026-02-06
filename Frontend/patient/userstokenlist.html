@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediQueue - My Tokens</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="patient.js"></script>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    .token-card {
+      transition: all 0.3s ease;
+    }
+    
+    .token-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    }
+    
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.95);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(0.95);
+        opacity: 1;
+      }
+    }
+    
+    .countdown-timer {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body class="bg-[#e6e6e6] min-h-screen">
+
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="dashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+    <div class="flex items-center gap-6">
+      <div class="relative">
+        <input type="text" placeholder="Search..." class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none" />
+      </div>
+      <button class="text-gray-700">🔔</button>
+      <img id="userAvatar" src="https://img.freepik.com/premium-vector/round-man-character-mockup-icon-flat-color-round-man-icon-blue-jacket-brown-hair-character-template-vector-icon_774778-2423.jpg" class="w-[55px] h-[55px] rounded-full" />
+      <button data-nav="logout" class="bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer">Logout</button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="px-[60px] flex items-center gap-8">
+    <button data-nav="dashboard" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Dashboard</button>
+    <button data-nav="schedule" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Schedule</button>
+    <button data-nav="doctors" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Doctors</button>
+    <button data-tab="tokens" class="nav-tab font-semibold border-b-2 border-black pb-1">Token List</button>
+  </div>
+
+  <!-- Header -->
+  <div class="px-[60px] mt-4">
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl px-6 py-2 w-64 shadow-lg">
+      <h2 class="text-white font-semibold">My Active Tokens</h2>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingState" class="px-[60px] mt-6">
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600">Loading your tokens...</p>
+    </div>
+  </div>
+
+  <!-- Token Cards Container -->
+  <div id="tokensContainer" class="px-[60px] mt-6 hidden space-y-6">
+    <!-- Active/Queued Tokens -->
+    <div id="activeTokensSection">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">🟢 Active Appointments</h3>
+      <div id="activeTokensList" class="grid grid-cols-1 gap-4">
+        <!-- Active tokens will be rendered here -->
+      </div>
+    </div>
+
+    <!-- Upcoming Tokens -->
+    <div id="upcomingTokensSection" class="mt-8">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">🕐 Upcoming Appointments</h3>
+      <div id="upcomingTokensList" class="grid grid-cols-1 gap-4">
+        <!-- Upcoming tokens will be rendered here -->
+      </div>
+    </div>
+
+    <!-- Completed Tokens -->
+    <div id="completedTokensSection" class="mt-8">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">✅ Completed</h3>
+      <div id="completedTokensList" class="grid grid-cols-1 gap-4">
+        <!-- Completed tokens will be rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="px-[60px] mt-6 hidden">
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
+      <div class="text-6xl mb-4">🎫</div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">No Tokens Found</h3>
+      <p class="text-gray-600 mb-6">You don't have any active appointments or tokens.</p>
+      <button onclick="window.location.href='Doctorlist.html'" class="bg-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-purple-700 transition">
+        Book an Appointment
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let allTokens = [];
+    let countdownIntervals = [];
+
+    // Format time for countdown
+    function formatCountdown(totalSeconds) {
+      if (totalSeconds <= 0) return 'Now';
+      
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      
+      if (hours > 0) {
+        return `${hours}h ${minutes}m ${seconds}s`;
+      } else if (minutes > 0) {
+        return `${minutes}m ${seconds}s`;
+      } else {
+        return `${seconds}s`;
+      }
+    }
+
+    // Calculate time until appointment starts
+    function getTimeUntilStart(startTime) {
+      const now = new Date();
+      const start = new Date(startTime);
+      return Math.max(0, Math.floor((start - now) / 1000));
+    }
+
+    // Calculate time remaining in appointment
+    function getTimeRemaining(endTime) {
+      const now = new Date();
+      const end = new Date(endTime);
+      return Math.max(0, Math.floor((end - now) / 1000));
+    }
+
+    // Calculate estimated wait time based on queue position
+    function calculateEstimatedWait(queuePosition, avgConsultationTime = 10) {
+      return queuePosition * avgConsultationTime * 60; // in seconds
+    }
+
+    // Start real-time countdown for a specific element
+    function startCountdown(elementId, getTimeFunction, ...args) {
+      const interval = setInterval(() => {
+        const element = document.getElementById(elementId);
+        if (!element) {
+          clearInterval(interval);
+          return;
+        }
+        
+        const timeLeft = getTimeFunction(...args);
+        element.textContent = formatCountdown(timeLeft);
+        
+        // Update color based on urgency
+        if (timeLeft <= 60) {
+          element.classList.add('text-red-600', 'font-bold', 'pulse-ring');
+        } else if (timeLeft <= 300) {
+          element.classList.add('text-orange-600');
+        }
+        
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          element.textContent = 'Now!';
+          element.classList.add('text-green-600', 'font-extrabold', 'pulse-ring');
+        }
+      }, 1000);
+      
+      countdownIntervals.push(interval);
+    }
+
+    // Fetch all patient tokens
+    async function fetchTokens() {
+      try {
+        const token = localStorage.getItem('token');
+        console.log('Token from localStorage:', token ? 'exists' : 'missing');
+        
+        if (!token) {
+          console.error('No token found, redirecting to login');
+          window.location.href = '../loginpage/login-patient.html';
+          return;
+        }
+
+        console.log('Fetching tokens from:', `${API_BASE_URL}/patients/my-tokens`);
+        const response = await fetch(`${API_BASE_URL}/patients/my-tokens`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          throw new Error(errorData.message || 'Failed to fetch tokens');
+        }
+
+        const result = await response.json();
+        console.log('Tokens received:', result);
+        
+        if (result.success && result.data && Array.isArray(result.data) && result.data.length > 0) {
+          allTokens = result.data;
+          console.log('Rendering', allTokens.length, 'tokens');
+          renderTokens();
+        } else {
+          console.log('No tokens found, showing empty state');
+          allTokens = [];
+          showEmptyState();
+        }
+      } catch (error) {
+        console.error('Error fetching tokens:', error);
+        allTokens = [];
+        showEmptyState();
+      } finally {
+        document.getElementById('loadingState').classList.add('hidden');
+      }
+    }
+
+    // Render all tokens
+    function renderTokens() {
+      if (!allTokens || allTokens.length === 0) {
+        console.log('No tokens to render');
+        showEmptyState();
+        return;
+      }
+
+      console.log('Rendering tokens, total count:', allTokens.length);
+      console.log('First token sample:', allTokens[0]);
+
+      // Clear existing intervals
+      countdownIntervals.forEach(interval => clearInterval(interval));
+      countdownIntervals = [];
+
+      // Categorize tokens
+      const now = new Date();
+      const activeTokens = allTokens.filter(t => 
+        t.appointmentStatus === 'ongoing' && (t.tokenStatus === 'queued' || t.tokenStatus === 'emergency' || t.tokenStatus === 'late_penalty')
+      );
+      const upcomingTokens = allTokens.filter(t => 
+        t.appointmentStatus === 'scheduled' && t.tokenStatus === 'queued'
+      );
+      const completedTokens = allTokens.filter(t => 
+        t.tokenStatus === 'completed' || t.tokenStatus === 'skipped'
+      );
+
+      console.log('Active tokens:', activeTokens.length);
+      console.log('Upcoming tokens:', upcomingTokens.length);
+      console.log('Completed tokens:', completedTokens.length);
+
+      // Render each category
+      renderActiveTokens(activeTokens);
+      renderUpcomingTokens(upcomingTokens);
+      renderCompletedTokens(completedTokens);
+
+      // Hide empty state and show tokens container
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('tokensContainer').classList.remove('hidden');
+    }
+
+    // Render active tokens with live countdown
+    function renderActiveTokens(tokens) {
+      const container = document.getElementById('activeTokensList');
+      const section = document.getElementById('activeTokensSection');
+      
+      if (tokens.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      section.classList.remove('hidden');
+      
+      container.innerHTML = tokens.map((token, index) => {
+        const tokenId = `active-token-${index}`;
+        const countdownId = `countdown-${tokenId}`;
+        const slotTimeId = `slot-time-${tokenId}`;
+        const queuePosition = index + 1;
+        const estimatedWait = calculateEstimatedWait(queuePosition);
+        
+        // Calculate remaining time in user's scheduled slot
+        const now = new Date();
+        const scheduleEnd = new Date(token.scheduleEndTime);
+        const scheduleStart = new Date(token.scheduleStartTime);
+        const isInSlot = now >= scheduleStart && now <= scheduleEnd;
+        const slotTimeRemaining = Math.max(0, Math.floor((scheduleEnd - now) / 1000));
+        
+        setTimeout(() => {
+          startCountdown(countdownId, () => estimatedWait - Math.floor((Date.now() - new Date().getTime()) / 1000));
+          
+          // Start slot time countdown if in slot
+          if (isInSlot) {
+            startCountdown(slotTimeId, () => {
+              const timeLeft = Math.max(0, Math.floor((new Date(token.scheduleEndTime) - new Date()) / 1000));
+              return timeLeft;
+            });
+          }
+        }, 100);
+        
+        return `
+          <div class="token-card bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-500">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="bg-green-100 rounded-full p-3">
+                    <span class="text-2xl">🎫</span>
+                  </div>
+                  <div>
+                    <h4 class="text-xl font-bold text-gray-800">Token #${token.tokenNumber}</h4>
+                    <p class="text-sm text-gray-600">${token.appointmentTitle}</p>
+                  </div>
+                </div>
+                
+                <div class="space-y-2 mb-4">
+                  <p class="text-sm"><span class="font-semibold">Doctor:</span> Dr. ${token.doctor.name}</p>
+                  <p class="text-sm"><span class="font-semibold">Specialty:</span> ${token.doctor.specialization}</p>
+                  <p class="text-sm"><span class="font-semibold">Date:</span> ${new Date(token.appointmentDate).toLocaleDateString()}</p>
+                  <p class="text-sm"><span class="font-semibold">Your Time:</span> ${new Date(token.scheduleStartTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})} - ${new Date(token.scheduleEndTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>
+                </div>
+                
+                ${isInSlot ? `
+                  <div class="bg-orange-50 rounded-xl p-4 border-2 border-orange-400 mb-3">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-xl">⏰</span>
+                      <p class="text-xs text-orange-800 uppercase font-bold">YOUR TIME SLOT IS ACTIVE!</p>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-600 uppercase font-semibold mb-1">Time Remaining in Your Slot</p>
+                        <p id="${slotTimeId}" class="text-3xl font-bold text-orange-600 countdown-timer">Calculating...</p>
+                      </div>
+                      <div class="text-center bg-white rounded-lg px-4 py-2">
+                        <p class="text-xs text-gray-600">Slot Ends</p>
+                        <p class="text-sm font-bold text-gray-800">${new Date(token.scheduleEndTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>
+                      </div>
+                    </div>
+                    <p class="mt-2 text-xs text-orange-700 font-semibold">⚠️ Please be ready! You may be called any moment.</p>
+                  </div>
+                ` : ''}
+                
+                <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-gray-600 uppercase font-semibold mb-1">Your Turn In</p>
+                      <p id="${countdownId}" class="text-2xl font-bold text-green-600 countdown-timer">Calculating...</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-xs text-gray-600">Queue Position</p>
+                      <p class="text-3xl font-extrabold text-purple-600">#${queuePosition}</p>
+                    </div>
+                  </div>
+                  ${token.tokenStatus === 'emergency' ? '<p class="mt-2 text-xs text-red-600 font-bold">⚠️ PRIORITY EMERGENCY</p>' : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render upcoming tokens
+    function renderUpcomingTokens(tokens) {
+      const container = document.getElementById('upcomingTokensList');
+      const section = document.getElementById('upcomingTokensSection');
+      
+      if (tokens.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      section.classList.remove('hidden');
+      
+      container.innerHTML = tokens.map((token, index) => {
+        const countdownId = `upcoming-countdown-${index}`;
+        
+        setTimeout(() => {
+          startCountdown(countdownId, getTimeUntilStart, token.appointmentStartTime);
+        }, 100);
+        
+        return `
+          <div class="token-card bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="bg-blue-100 rounded-full p-3">
+                    <span class="text-2xl">🕐</span>
+                  </div>
+                  <div>
+                    <h4 class="text-xl font-bold text-gray-800">Token #${token.tokenNumber}</h4>
+                    <p class="text-sm text-gray-600">${token.appointmentTitle}</p>
+                  </div>
+                </div>
+                
+                <div class="space-y-2 mb-4">
+                  <p class="text-sm"><span class="font-semibold">Doctor:</span> Dr. ${token.doctor.name}</p>
+                  <p class="text-sm"><span class="font-semibold">Date:</span> ${new Date(token.appointmentDate).toLocaleDateString()}</p>
+                  <p class="text-sm"><span class="font-semibold">Time:</span> ${new Date(token.scheduleStartTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <p class="text-xs text-gray-600 uppercase font-semibold mb-1">Session Starts In</p>
+                  <p id="${countdownId}" class="text-2xl font-bold text-blue-600 countdown-timer">Calculating...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render completed tokens
+    function renderCompletedTokens(tokens) {
+      const container = document.getElementById('completedTokensList');
+      const section = document.getElementById('completedTokensSection');
+      
+      if (tokens.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      section.classList.remove('hidden');
+      
+      container.innerHTML = tokens.slice(0, 5).map(token => {
+        const statusColor = token.tokenStatus === 'completed' ? 'green' : 'red';
+        const statusText = token.tokenStatus === 'completed' ? 'Completed' : 'Skipped';
+        
+        return `
+          <div class="token-card bg-gray-50 rounded-xl p-4 border-l-4 border-${statusColor}-500 opacity-75">
+            <div class="flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-gray-800">Token #${token.tokenNumber} - ${token.appointmentTitle}</h4>
+                <p class="text-sm text-gray-600">Dr. ${token.doctor.name}</p>
+                <p class="text-xs text-gray-500">${new Date(token.appointmentDate).toLocaleDateString()}</p>
+              </div>
+              <span class="bg-${statusColor}-100 text-${statusColor}-800 px-3 py-1 rounded-full text-xs font-semibold">
+                ${statusText}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Show empty state
+    function showEmptyState() {
+      document.getElementById('tokensContainer').classList.add('hidden');
+      document.getElementById('emptyState').classList.remove('hidden');
+    }
+
+    // Navigation handler
+    function handleNavigation(destination) {
+      const routes = {
+        'dashboard': 'Dashbord.html',
+        'schedule': 'userschedule.html',
+        'doctors': 'Doctorlist.html',
+        'tokens': 'userstokenlist.html',
+        'logout': '../loginpage/login-patient.html'
+      };
+
+      if (destination === 'logout') {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('token');
+          window.location.href = routes[destination];
+        }
+      } else if (routes[destination]) {
+        window.location.href = routes[destination];
+      }
+    }
+
+    // Initialize
+    window.onload = function() {
+      fetchTokens();
+      
+      // Refresh every 30 seconds
+      setInterval(fetchTokens, 30000);
+
+      // Add navigation listeners
+      document.querySelectorAll('[data-nav]').forEach(button => {
+        button.addEventListener('click', function() {
+          const destination = this.getAttribute('data-nav');
+          handleNavigation(destination);
+        });
+      });
+    };
+  </script>
+
+</body>
+</html>

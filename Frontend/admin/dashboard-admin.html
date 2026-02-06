@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard - MediQueue</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+body{font-family:'Inter',sans-serif;}
+</style>
+</head>
+
+<body class="bg-[#d9d9d9]">
+
+<div class="flex justify-between items-center px-[60px] py-[20px]">
+    <div>
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </div>
+
+    <div class="flex items-center gap-6">
+        <div class="relative">
+            <input type="text" placeholder="Search..." class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none" />
+        </div>
+        <button class="text-gray-700">🔔</button>
+        <img src="../images/admin.png" class="w-[55px] h-[55px] rounded-full object-cover" />
+        <button onclick="handleLogout()" class="bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer">Logout</button>
+    </div>
+</div>
+
+<div class="px-[60px] flex items-center gap-8">
+    <button class="nav-tab font-semibold border-b-2 border-black pb-1">Dashboard</button>
+</div>
+
+<div class="px-[60px] py-[15px]">
+
+<h3 class="text-[18px] font-semibold">Dashboard</h3>
+
+<div class="flex gap-[30px] my-[16px]">
+
+    <div class="w-[150px] h-[130px] bg-[#e0e0e0] rounded-[20px] text-center p-[20px] shadow-[0_15px_30px_rgba(0,0,0,.25)]">
+        <img src="../images/doctor.png" class="w-[40px] mx-auto mb-[10px]">
+        <p>Total Doctors</p>
+        <h3 class="font-bold text-[18px]">24</h3>
+    </div>
+
+    <div class="w-[150px] h-[130px] bg-[#e0e0e0] rounded-[20px] text-center p-[20px] shadow-[0_15px_30px_rgba(0,0,0,.25)]">
+        <img src="../images/token.png" class="w-[40px] mx-auto mb-[10px]">
+        <p>Total Tokens</p>
+        <h3 class="font-bold text-[18px]">187</h3>
+    </div>
+
+    <div class="w-[150px] h-[130px] bg-[#e0e0e0] rounded-[20px] text-center p-[20px] shadow-[0_15px_30px_rgba(0,0,0,.25)]">
+        <img src="../images/clinic.png" class="w-[40px] mx-auto mb-[10px]">
+        <p>Total Clinics</p>
+        <h3 class="font-bold text-[18px]">6</h3>
+    </div>
+
+</div>
+
+<h3 class="pt-[5px] pb-[16px] text-[18px] font-semibold">Quick Actions</h3>
+
+<button onclick="openAddDoctor()" class="px-[16px] py-[8px] border border-black rounded-[6px] bg-white mr-[20px] transition-all duration-200
+hover:bg-black hover:text-white hover:shadow-lg">
+Add Doctor
+</button>
+
+<button onclick="goTokenRules()" class="px-[16px] py-[8px] border border-black rounded-[6px] bg-white transition-all duration-200
+hover:bg-black hover:text-white hover:shadow-lg">
+Add Token Rule
+</button>
+
+<h3 class="mt-[20px] text-[18px] font-semibold">Recent Activity</h3>
+
+<table class="w-full mt-[16px] bg-white rounded-[12px] overflow-hidden border-collapse">
+
+<tr class="bg-[#f2f2f2]">
+    <th class="p-[12px] border text-left">Name</th>
+    <th class="p-[12px] border text-left">Speciality</th>
+    <th class="p-[12px] border text-left">Effect</th>
+    <th class="p-[12px] border text-left">Status</th>
+    <th class="p-[12px] border text-left">Time</th>
+</tr>
+
+<tbody id="recentActivityBody"></tbody>
+
+</table>
+
+</div>
+
+<div id="addDoctor" class="fixed inset-0 bg-black/35 hidden items-center justify-center overflow-y-auto">
+    <div class="w-[700px] max-h-[90vh] bg-[#e0e0e0] rounded-[20px] p-[30px] my-[20px] overflow-y-auto">
+        <h2 class="mb-[15px] font-bold text-[20px]">Registered Doctors</h2>
+        <p class="text-sm text-gray-600 mb-4">Click "Add" to activate a doctor in the system</p>
+
+        <div id="doctorsList" class="space-y-3">
+            <p class="text-center py-4">Loading doctors...</p>
+        </div>
+
+        <div class="flex justify-end mt-[20px]">
+            <button onclick="closeAddDoctor()" class="bg-[#ddd] px-[14px] py-[6px] rounded-[6px]">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirmModal" class="fixed inset-0 bg-black/35 hidden items-center justify-center">
+    <div class="w-[380px] bg-[#e0e0e0] rounded-[20px] p-[30px]">
+        <h2 class="mb-[15px] font-bold text-[18px]">Confirm Add Doctor</h2>
+        <p class="mb-[20px]" id="confirmMessage">Are you sure you want to add this doctor?</p>
+        <div class="flex justify-between">
+            <button onclick="closeConfirm()" class="bg-[#ddd] px-[14px] py-[6px] rounded-[6px]">Cancel</button>
+            <button onclick="confirmAddDoctor()" class="bg-black text-white px-[14px] py-[6px] rounded-[6px]">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div id="successModal" class="fixed inset-0 bg-black/35 hidden items-center justify-center">
+    <div class="w-[320px] h-[40vh] bg-[#e0e0e0] rounded-[20px] p-[30px] text-center">
+        <div class="mx-auto mt-[15px] mb-[25px] w-[70px] h-[70px] bg-black text-white text-[42px] flex items-center justify-center rounded-full">✔</div>
+        <p class="mb-[15px]">Doctor Added Successfully</p>
+        <button onclick="closeSuccess()" class="bg-black text-white px-[18px] py-[6px] rounded-[6px]">Done</button>
+    </div>
+</div>
+
+<script>
+    (function () {
+  function checkAuth() {
+    const token =
+      localStorage.getItem("adminToken") ||
+      localStorage.getItem("doctorToken") ||
+      localStorage.getItem("token");
+
+    if (!token) {
+      window.location.replace("../loginpage/login-admin.html");
+    }
+  }
+
+  // Run on load
+  checkAuth();
+
+  // Run when page comes from cache (back button)
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) {
+      checkAuth();
+    }
+  });
+})();
+    
+    (function () {
+  const token =
+    localStorage.getItem("adminToken") ||
+    localStorage.getItem("doctorToken") ||
+    localStorage.getItem("token");
+
+  if (!token) {
+    window.location.replace("../loginpage/login-admin.html");
+  }
+
+  // Prevent back button cache access
+  window.history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    window.history.go(1);
+  };
+})();
+    
+const API_URL = "https://mediqueue-xt8k.onrender.com";
+let selectedDoctorId = null;
+let selectedDoctorName = null;
+
+async function openAddDoctor(){
+    document.getElementById('addDoctor').classList.remove('hidden');
+    document.getElementById('addDoctor').classList.add('flex');
+    await loadDoctors();
+}
+
+function closeAddDoctor(){
+    document.getElementById('addDoctor').classList.add('hidden');
+}
+
+async function loadDoctors(){
+    const doctorsList = document.getElementById('doctorsList');
+    doctorsList.innerHTML = '<p class="text-center py-4">Loading doctors...</p>';
+    
+    try {
+        const token = localStorage.getItem('adminToken');
+        
+        if(!token){
+            doctorsList.innerHTML = '<p class="text-center text-red-600 py-4">Please login as admin first</p>';
+            return;
+        }
+
+        const response = await fetch(`${API_URL}/admin/doctors`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if(response.ok && result.data){
+            const doctors = result.data;
+            
+            if(doctors.length === 0){
+                doctorsList.innerHTML = '<p class="text-center py-4">No registered doctors found</p>';
+                return;
+            }
+
+            doctorsList.innerHTML = doctors.map(doctor => `
+                <div class="bg-white rounded-[12px] p-[16px] flex justify-between items-center border border-gray-300">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-[16px]">${doctor.name}</h3>
+                        <p class="text-sm text-gray-600">${doctor.email}</p>
+                        <p class="text-sm text-gray-600">Specialization: ${doctor.specialization || 'N/A'}</p>
+                        <p class="text-sm text-gray-600">License: ${doctor.licenseNumber || 'N/A'}</p>
+                        <span class="text-xs px-2 py-1 rounded ${doctor.isActive ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}">
+                            ${doctor.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <button 
+                        onclick="showConfirm('${doctor._id}', '${doctor.name}')" 
+                        class="px-[16px] py-[6px] rounded-[6px] transition ${doctor.isActive ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}"
+                        ${doctor.isActive ? 'disabled' : ''}
+                    >
+                        ${doctor.isActive ? 'Added' : 'Add'}
+                    </button>
+                </div>
+            `).join('');
+        } else {
+            doctorsList.innerHTML = '<p class="text-center text-red-600 py-4">Failed to load doctors</p>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        doctorsList.innerHTML = '<p class="text-center text-red-600 py-4">Network error. Please try again.</p>';
+    }
+}
+
+function showConfirm(doctorId, doctorName){
+    selectedDoctorId = doctorId;
+    selectedDoctorName = doctorName;
+    document.getElementById('confirmMessage').textContent =
+        `Are you sure you want to add ${doctorName} to the system?`;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.getElementById('confirmModal').classList.add('flex');
+}
+
+function closeConfirm(){
+    document.getElementById('confirmModal').classList.add('hidden');
+    selectedDoctorId = null;
+    selectedDoctorName = null;
+}
+
+async function confirmAddDoctor(){
+    if(!selectedDoctorId) return;
+    
+    try {
+        const token = localStorage.getItem('adminToken');
+        
+        const response = await fetch(`${API_URL}/admin/doctors/${selectedDoctorId}/approve`, {
+            method: "PATCH",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const result = await response.json();
+
+        if(response.ok){
+            closeConfirm();
+            openSuccess();
+            await loadDoctors();
+            await loadRecentActivity(); // activity refresh
+        } else {
+            alert(result.message || 'Failed to add doctor');
+            closeConfirm();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Network error. Please try again.');
+        closeConfirm();
+    }
+}
+
+function openSuccess(){
+    document.getElementById('successModal').classList.remove('hidden');
+    document.getElementById('successModal').classList.add('flex');
+}
+
+function closeSuccess(){
+    document.getElementById('successModal').classList.add('hidden');
+}
+
+function goTokenRules(){
+    window.location.href="token-rules.html";
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        window.location.href = '../loginpage/login-admin.html';
+    }
+}
+
+/* ---------- FIXED ACTIVITY ---------- */
+async function loadRecentActivity() {
+    const token = localStorage.getItem("adminToken");
+    const body = document.getElementById("recentActivityBody");
+
+    // loading spinner
+    body.innerHTML = `
+    <tr>
+        <td colspan="5" class="p-[20px] text-center border">
+            <div class="flex flex-col items-center gap-3">
+                <div class="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+                <span class="text-gray-600">Loading activity...</span>
+            </div>
+        </td>
+    </tr>`;
+
+    if (!token) return;
+
+    try {
+        const res = await fetch(`${API_URL}/admin/doctors`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const result = await res.json();
+        if (!res.ok || !result.data) return;
+
+        const doctors = result.data
+            .filter(d => d.isActive)
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            .slice(0, 8);
+
+        if (doctors.length === 0) {
+            body.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-[12px] text-center border">
+                    No activity yet.
+                </td>
+            </tr>`;
+            return;
+        }
+
+        body.innerHTML = doctors.map(d => `
+        <tr>
+            <td class="p-[12px] border">${d.name}</td>
+            <td class="p-[12px] border">${d.specialization || "—"}</td>
+            <td class="p-[12px] border">Added to system</td>
+            <td class="p-[12px] border">Active</td>
+            <td class="p-[12px] border">
+                ${new Date(d.updatedAt).toLocaleString()}
+            </td>
+        </tr>
+        `).join("");
+
+    } catch (err) {
+        body.innerHTML = `
+        <tr>
+            <td colspan="5" class="p-[12px] text-center border text-red-600">
+                Failed to load activity
+            </td>
+        </tr>`;
+    }
+}
+   loadRecentActivity(); 
+</script>
+
+</body>
+</html>

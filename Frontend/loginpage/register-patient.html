@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register as Patient</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Inter] overflow-hidden">
+
+<div class="w-full h-screen flex items-center justify-between px-[80px]">
+
+    <a href="/" class="text-black">
+        <div>
+            <h1 class="text-[48px] font-black mb-2">MediQueue</h1>
+            <p class="text-[20px] font-normal">Smart Hospital Management</p>
+        </div>
+    </a>
+
+    <div class="w-[380px] bg-white rounded-[16px] px-[26px] pt-[28px] pb-[30px]
+                text-center shadow-[0_18px_35px_rgba(0,0,0,0.25)]">
+
+        <h2 class="text-[22px] font-bold mb-[22px]">Register as Patient</h2>
+
+        <div id="errorMessage" class="text-red-600 text-sm mb-3 hidden"></div>
+        <div id="successMessage" class="text-green-600 text-sm mb-3 hidden"></div>
+
+        <input type="text" id="patientName" placeholder="Full name"
+               class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+        <input type="email" id="patientRegEmail" placeholder="Email address"
+               class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+        <input type="password" id="patientRegPassword" placeholder="Password"
+               class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+        <input type="password" id="patientConfirmPassword" placeholder="Confirm password"
+               class="w-full h-[38px] mb-3 px-3 border border-[#cfcfcf] rounded-md text-[13px]">
+
+        <button id="registerBtn" class="w-[70%] h-[38px] mt-1 border border-black rounded-full
+                       text-[13px] font-bold cursor-pointer transition
+                       hover:bg-black hover:text-white">
+            Sign up
+        </button>
+
+        <p class="text-[14px] mt-[14px]">
+            Already have an account?
+            <a href="login-patient.html" class="font-bold text-black">Sign in</a>
+        </p>
+
+    </div>
+
+</div>
+
+<script src="clientlogin.js"></script>
+<script>
+    document.getElementById('registerBtn').addEventListener('click', handleRegister);
+    
+    // Allow Enter key to submit
+    document.getElementById('patientConfirmPassword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleRegister();
+        }
+    });
+
+    function handleRegister() {
+        const name = document.getElementById('patientName').value.trim();
+        const email = document.getElementById('patientRegEmail').value.trim();
+        const password = document.getElementById('patientRegPassword').value;
+        const confirmPassword = document.getElementById('patientConfirmPassword').value;
+        const registerBtn = document.getElementById('registerBtn');
+        
+        // Reset messages
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        if (errorMessage) {
+            errorMessage.classList.add('hidden');
+            errorMessage.textContent = '';
+        }
+        if (successMessage) {
+            successMessage.classList.add('hidden');
+            successMessage.textContent = '';
+        }
+        
+        // Call the registerPatient function from clientlogin.js
+        registerPatient(name, email, password, confirmPassword, registerBtn);
+    }
+</script>
+
+</body>
+</html>

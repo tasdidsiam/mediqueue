@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Log in As - MediQueue</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Nunito Sans] overflow-hidden">
+
+<a href="/">
+    <div class="absolute top-8 left-16 text-black">
+        <h1 class="font-[Inter] text-[42px] font-black">MediQueue</h1>
+        <p class="text-[18.5px] mt-1.5">Smart Hospital Management</p>
+    </div>
+</a>
+
+<div class="h-screen flex items-center justify-center p-16">
+    <div class="w-[700px] bg-white rounded-[28px] px-12 py-9 text-center
+                shadow-[0_25px_45px_rgba(0,0,0,0.25)]">
+
+        <h2 class="text-[30px] font-bold mb-9">Log in As</h2>
+
+        <div class="flex justify-center gap-10 mb-8">
+            <a href="login-patient.html">
+                <div class="w-[260px] h-[130px] border border-[#bdbdbd] rounded-lg
+                            flex items-center justify-center
+                            text-[20px] font-bold text-black
+                            cursor-pointer transition
+                            hover:shadow-[0_18px_30px_rgba(0,0,0,0.25)]
+                            hover:-translate-y-0.5">
+                    Patient
+                </div>
+            </a>
+
+            <a href="login-doctor.html">
+                <div class="w-[260px] h-[130px] border border-[#bdbdbd] rounded-lg
+                            flex items-center justify-center
+                            text-[20px] font-bold text-black
+                            cursor-pointer transition
+                            hover:shadow-[0_18px_30px_rgba(0,0,0,0.25)]
+                            hover:-translate-y-0.5">
+                    Doctor
+                </div>
+            </a>
+        </div>
+
+        <p class="text-[18px]">
+            Don’t have an account?
+            <a href="register.html" class="font-bold text-black">Sign up</a>
+        </p>
+
+    </div>
+</div>
+
+<a href="login-admin.html">
+    <p class="absolute bottom-[18px] w-full text-center text-[18px] font-bold cursor-pointer transition hover:opacity-80">
+        Admin Log in
+    </p>
+</a>
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Token Rules - MediQueue</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+body{font-family:'Inter',sans-serif;}
+</style>
+</head>
+
+<body class="bg-[#d9d9d9]">
+
+<div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="dashboard-admin.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+    <div class="flex items-center gap-[14px]">
+        <span class="text-[18px] font-semibold">Admin</span>
+        <img src="../images/admin.png" class="w-[55px] h-[55px] rounded-full object-cover">
+    </div>
+</div>
+
+<div class="px-[220px] py-[30px]">
+
+<h2 class="text-[22px] font-bold">Token Rules</h2>
+
+<p class="max-w-[620px] my-[10px] mb-[20px] text-[14px]">
+Token rules govern the token distribution for specific specialities,
+clinics, or other parameters.
+</p>
+
+<button onclick="openAddRule()" class="bg-black text-white px-[14px] py-[8px] rounded-[6px] mb-[20px] hover:opacity-90">
++ Add Rule
+</button>
+
+<table class="w-full mt-[20px] bg-white rounded-[12px] overflow-hidden border-collapse">
+
+<tr class="bg-[#f2f2f2]">
+<th class="p-[12px] border text-left">Rule Name</th>
+<th class="p-[12px] border text-left">Speciality</th>
+<th class="p-[12px] border text-left">Max Tokens</th>
+<th class="p-[12px] border text-left">Clinics Assigned</th>
+<th class="p-[12px] border text-left">Action</th>
+</tr>
+
+<tbody id="rulesTable">
+<tr>
+<td colspan="5" class="p-[20px] text-center border">
+    <div class="flex flex-col items-center gap-3">
+        <div class="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+        <span class="text-gray-600">Loading rules...</span>
+    </div>
+</td>
+</tr> 
+</tbody>
+
+</table>
+
+</div>
+
+<div id="addRuleModal" class="fixed inset-0 bg-black/35 hidden items-center justify-center z-50">
+<div class="w-[480px] bg-[#e0e0e0] rounded-[22px] p-[30px]">
+
+<h2 class="mb-[16px] font-bold text-[20px]">Add Token Rule</h2>
+
+<input id="ruleName"
+class="w-full h-[38px] mb-[12px] px-[12px] rounded-[6px] border"
+placeholder="Rule name (e.g. Morning OPD Rule)">
+
+<select id="ruleSpeciality"
+class="w-full h-[38px] mb-[12px] px-[12px] rounded-[6px] border">
+<option value="">Choose Speciality</option>
+<option>Cardiology</option>
+  <option>Neurology</option>
+  <option>Orthopedics</option>
+  <option>Pediatrics</option>
+  <option>Dermatology</option>
+  <option>Psychiatry</option>
+  <option>Radiology</option>
+  <option>General Medicine</option>
+  <option>Surgery</option>
+  <option>Dentistry</option>
+  <option>Other</option>
+</select>
+
+<div class="flex gap-[10px]">
+
+<input
+  id="ruleMaxTokens"
+  type="number"
+  min="0"
+  onkeydown="return event.key !== '-'"
+  class="w-1/2 h-[38px] mb-[12px] px-[12px] rounded-[6px] border"
+  placeholder="Max tokens per day"
+/>
+
+<input
+  id="ruleAutoCancel"
+  type="number"
+  min="0"
+  onkeydown="return event.key !== '-'"
+  class="w-1/2 h-[38px] mb-[12px] px-[12px] rounded-[6px] border"
+  placeholder="Auto cancel time (min)"
+/>
+
+</div>
+
+<div class="flex justify-between my-[14px]">
+
+<div class="flex items-center gap-[12px] text-[14px] w-[48%]">
+    <span>Emergency Priority</span>
+    <label class="relative w-[42px] h-[22px] cursor-pointer">
+        <input type="checkbox" class="peer hidden">
+        <span class="absolute inset-0 bg-[#cfcfcf] rounded-full transition peer-checked:bg-black"></span>
+        <span class="absolute w-[18px] h-[18px] bg-white rounded-full top-[2px] left-[2px] transition peer-checked:translate-x-[20px]"></span>
+    </label>
+</div>
+
+<div class="flex items-center gap-[12px] text-[14px] w-[48%]">
+    <span>Allow pre-scheduling</span>
+    <label class="relative w-[42px] h-[22px] cursor-pointer">
+        <input type="checkbox" class="peer hidden">
+        <span class="absolute inset-0 bg-[#cfcfcf] rounded-full transition peer-checked:bg-black"></span>
+        <span class="absolute w-[18px] h-[18px] bg-white rounded-full top-[2px] left-[2px] transition peer-checked:translate-x-[20px]"></span>
+    </label>
+</div>
+
+</div>
+
+
+<textarea class="w-full h-[70px] p-[12px] rounded-[6px] border resize-none mb-[10px]" placeholder="Write notes or description (optional)"></textarea>
+
+<div class="flex justify-between mt-[12px]">
+<button onclick="closeAddRule()" class="bg-[#ddd] px-[16px] py-[6px] rounded-[6px]">Cancel</button>
+<button onclick="addRule()" class="bg-black text-white px-[18px] py-[6px] rounded-[6px]">
+Add
+</button>
+</div>
+
+</div>
+</div>
+
+<div id="ruleSuccess" class="fixed inset-0 bg-black/35 hidden items-center justify-center">
+<div class="w-[320px] h-[40vh] bg-[#e0e0e0] rounded-[20px] p-[30px] text-center">
+<div class="mx-auto mt-[15px] mb-[25px] w-[70px] h-[70px] bg-black text-white text-[42px] flex items-center justify-center rounded-full">✔</div>
+<p class="mb-[15px]">Token Rule Added Successfully</p>
+<button onclick="closeRuleSuccess(); loadTokenRules();" class="bg-black text-white px-[18px] py-[6px] rounded-[6px]">Done</button>
+</div>
+</div>
+<div id="deleteModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 w-[320px] text-center shadow-xl animate-fadeIn">
+    <h3 class="text-lg font-semibold mb-3">Delete Rule?</h3>
+    <p class="text-sm mb-4">This action cannot be undone.</p>
+
+    <div class="flex justify-center gap-3">
+      <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 rounded">
+        Cancel
+      </button>
+      <button onclick="deleteRule()" class="px-4 py-2 bg-red-600 text-white rounded">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+<div id="editRuleModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 w-[360px] shadow-xl">
+    <h3 class="text-lg font-semibold mb-4">Edit Rule</h3>
+
+    <input id="editRuleName"
+      class="w-full border rounded px-3 py-2 mb-3"
+      placeholder="Rule name">
+
+    <select id="editSpeciality"
+      class="w-full border rounded px-3 py-2 mb-3">
+      <option value="Cardiology">Cardiology</option>
+      <option value="Neurology">Neurology</option>
+      <option value="Dentistry">Dentistry</option>
+    </select>
+
+    <input id="editMaxTokens"
+      type="number"
+      class="w-full border rounded px-3 py-2 mb-4"
+      placeholder="Max tokens">
+
+    <div class="flex justify-between">
+      <button onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded">
+        Cancel
+      </button>
+      <button onclick="updateRule()" class="px-4 py-2 bg-black text-white rounded">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+    
+<script>
+const API_URL = "https://mediqueue-xt8k.onrender.com";
+
+function openAddRule(){
+  const m = document.getElementById('addRuleModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+
+function closeAddRule(){
+  document.getElementById('addRuleModal').classList.add('hidden');
+}
+
+function openRuleSuccess(){
+  closeAddRule();
+  const s = document.getElementById('ruleSuccess');
+  s.classList.remove('hidden');
+  s.classList.add('flex');
+}
+
+function closeRuleSuccess(){
+  document.getElementById('ruleSuccess').classList.add('hidden');
+}
+
+/* ================= LOAD RULES ================= */
+async function loadTokenRules() {
+  const table = document.getElementById("rulesTable");
+  const token = localStorage.getItem("adminToken");
+
+  // loading state
+  table.innerHTML = `
+  <tr>
+    <td colspan="5" class="p-[20px] text-center border">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
+        <span class="text-gray-600">Loading rules...</span>
+      </div>
+    </td>
+  </tr>`;
+
+  if (!token) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-[12px] text-center border text-red-600">
+          Please login again.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/admin/token-rules`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error("Server error");
+
+    const result = await res.json();
+
+    if (!result.data || result.data.length === 0) {
+      table.innerHTML = `
+        <tr>
+          <td colspan="5" class="p-[12px] text-center border">
+            No token rules found.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    const rows = result.data.map(rule => `
+  <tr>
+    <td class="p-[12px] border">${rule.ruleName}</td>
+    <td class="p-[12px] border">${rule.speciality || "—"}</td>
+    <td class="p-[12px] border">${rule.maxTokens}</td>
+    <td class="p-[12px] border">${rule.clinics?.length || 0}</td>
+    <td class="p-[12px] border flex gap-2">
+      <button onclick="openEditRule('${rule._id}', '${rule.ruleName}', '${rule.speciality}', ${rule.maxTokens})"
+        class="text-blue-600 hover:underline">
+        Edit
+      </button>
+
+      <button onclick="confirmDeleteRule('${rule._id}')"
+        class="text-red-600 hover:underline">
+        Delete
+      </button>
+    </td>
+  </tr>
+`).join("");
+
+    table.innerHTML = rows;
+
+  } catch (err) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="5" class="p-[12px] text-center border text-red-600">
+          Failed to load rules
+        </td>
+      </tr>`;
+  }
+}
+    loadTokenRules();
+
+/* ================= ADD RULE ================= */
+async function addRule() {
+  const token = localStorage.getItem("adminToken");
+
+  const ruleName = document.getElementById("ruleName").value;
+  const speciality = document.getElementById("ruleSpeciality").value;
+  const maxTokens = document.getElementById("ruleMaxTokens").value;
+
+  if (!ruleName || !speciality || !maxTokens) {
+    alert("Please fill required fields");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/admin/token-rules`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        ruleName,
+        speciality,
+        maxTokens: Number(maxTokens)
+      })
+    });
+
+    if (!res.ok) {
+      alert("Failed to add rule");
+      return;
+    }
+
+    await loadTokenRules();
+    openRuleSuccess();
+
+  } catch (err) {
+    alert("Server error");
+  }
+}
+
+/* start loading */
+loadTokenRules();
+
+/* ================= DELETE RULE ================= */
+    async function deleteRule(id) {
+  if (!confirm("Delete this rule?")) return;
+
+  const token = localStorage.getItem("adminToken");
+
+  try {
+    const res = await fetch(`${API_URL}/admin/token-rules/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
+
+    loadTokenRules(); // reload table
+  } catch (err) {
+    alert("Server error");
+  }
+}
+    let ruleToDelete = null;
+
+function confirmDeleteRule(id){
+  ruleToDelete = id;
+  document.getElementById("deleteModal").classList.remove("hidden");
+  document.getElementById("deleteModal").classList.add("flex");
+}
+
+function closeDeleteModal(){
+  document.getElementById("deleteModal").classList.add("hidden");
+  ruleToDelete = null;
+}
+
+async function deleteRule(){
+  if(!ruleToDelete) return;
+
+  const token = localStorage.getItem("adminToken");
+
+  try{
+    const res = await fetch(`${API_URL}/admin/token-rules/${ruleToDelete}`,{
+      method:"DELETE",
+      headers:{ Authorization:`Bearer ${token}` }
+    });
+
+    closeDeleteModal();
+    await loadTokenRules();
+
+  }catch(err){
+    alert("Delete failed");
+  }
+}
+
+    let editingRuleId = null;
+
+function openEditRule(id, name, speciality, maxTokens){
+  editingRuleId = id;
+
+  document.getElementById("editRuleName").value = name;
+  document.getElementById("editSpeciality").value = speciality;
+  document.getElementById("editMaxTokens").value = maxTokens;
+
+  document.getElementById("editRuleModal").classList.remove("hidden");
+  document.getElementById("editRuleModal").classList.add("flex");
+}
+
+function closeEditModal(){
+  document.getElementById("editRuleModal").classList.add("hidden");
+}
+
+async function updateRule(){
+  const token = localStorage.getItem("adminToken");
+
+  const ruleName = document.getElementById("editRuleName").value;
+  const speciality = document.getElementById("editSpeciality").value;
+  const maxTokens = document.getElementById("editMaxTokens").value;
+
+  try{
+    const res = await fetch(`${API_URL}/admin/token-rules/${editingRuleId}`,{
+      method:"PATCH",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:`Bearer ${token}`
+      },
+      body: JSON.stringify({
+        ruleName,
+        speciality,
+        maxTokens:Number(maxTokens)
+      })
+    });
+
+    closeEditModal();
+    await loadTokenRules();
+
+  }catch(err){
+    alert("Update failed");
+  }
+}
+</script>
+
+</body>
+</html>

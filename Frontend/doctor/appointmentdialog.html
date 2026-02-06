@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediQueue – Success</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+            colors: {
+              appBg: "#D9D9D9",
+            },
+            boxShadow: {
+              btn: "0 10px 18px rgba(0,0,0,0.22)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-appBg font-sans text-black">
+    <div class="min-h-screen w-full">
+      <!-- Top-left brand -->
+      <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="doctordashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+      <!-- Center content -->
+      <div class="flex flex-col items-center justify-center pt-28">
+        <!-- Check icon in circle -->
+        <div class="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-black">
+          <svg
+            viewBox="0 0 24 24"
+            class="h-16 w-16"
+            fill="none"
+            stroke="white"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </div>
+
+        <!-- Message -->
+        <div class="mt-10 text-3xl font-medium tracking-wide">
+          Appointment Added Successfully
+        </div>
+
+        <!-- Done button -->
+        <button
+          class="mt-28 h-12 w-[190px] rounded-lg bg-black text-xl font-extrabold text-white shadow-btn"
+        >
+          Done
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

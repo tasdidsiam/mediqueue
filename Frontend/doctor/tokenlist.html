@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediQueue – Token List</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Optional: nicer default font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui"],
+            },
+            colors: {
+              appBg: "#D9D9D9",
+              pill: "#8F7DBA",
+              pillDark: "#7E6AAE",
+              activeBlue: "#8FD2FF",
+              logoutRed: "#A82626",
+              soft: "#CFC9C9",
+            },
+            boxShadow: {
+              soft: "0 18px 30px rgba(0,0,0,0.25)",
+              pill: "0 6px 12px rgba(0,0,0,0.25)",
+              btn: "0 10px 16px rgba(0,0,0,0.25)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-[#e6e6e6] min-h-screen font-sans text-black">
+    <div class="min-h-screen w-full">
+      <!-- Top Bar -->
+      <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="doctordashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none"
+            />
+          </div>
+          <button class="text-gray-700">🔔</button>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2iQvAPNLkPLllOM8WVfxC7-sZoa7_SfU9g&s"
+            alt="Profile"
+            class="w-[55px] h-[55px] rounded-full"
+          />
+          <button
+            class="bg-logoutRed bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="px-[60px] flex items-center gap-8">
+        <a
+          href="doctordashboard.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Dashboard
+        </a>
+        <a
+          href="schedultab.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Schedule
+        </a>
+        <a
+          href="livesession.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Live Session
+        </a>
+      </div>
+
+      <div class="px-[60px] pb-[60px]">
+
+      <!-- Header Section -->
+      <div class="mt-8 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+          <h2 class="text-2xl font-extrabold">Token Management</h2>
+          <div class="rounded-full bg-blue-100 px-5 py-2 text-sm font-bold text-blue-700">
+            <span id="totalTokens">0</span> Active Tokens
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <!-- Search -->
+          <div class="flex h-11 w-80 items-center gap-3 rounded-xl bg-white px-4 shadow-soft">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="11" cy="11" r="7" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 20l-3.5-3.5" />
+            </svg>
+            <input 
+              type="text" 
+              id="searchInput"
+              oninput="searchTokens()"
+              placeholder="Search by patient, token, or date..."
+              class="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-gray-400"
+            />
+          </div>
+          <!-- Sort Dropdown -->
+          <div class="relative">
+            <button
+              onclick="toggleSortDropdown()"
+              class="flex h-11 items-center gap-3 rounded-xl bg-white px-5 shadow-soft hover:shadow-lg transition"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+              </svg>
+              <span id="sortSelected" class="text-sm font-semibold text-gray-600">Sort By</span>
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div id="sortDropdown" class="absolute right-0 z-20 mt-2 hidden w-72 rounded-xl bg-white shadow-xl border border-gray-100">
+              <div onclick="sortBy('token-asc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 rounded-t-xl transition">Token Number (Low to High)</div>
+              <div onclick="sortBy('token-desc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Token Number (High to Low)</div>
+              <div onclick="sortBy('appointment-asc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Appointment Number (Low to High)</div>
+              <div onclick="sortBy('appointment-desc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Appointment Number (High to Low)</div>
+              <div onclick="sortBy('date-asc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Date (Oldest First)</div>
+              <div onclick="sortBy('date-desc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Date (Newest First)</div>
+              <div onclick="sortBy('patient-asc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 transition">Patient Name (A-Z)</div>
+              <div onclick="sortBy('patient-desc')" class="cursor-pointer px-5 py-3 text-sm font-semibold hover:bg-blue-50 rounded-b-xl transition">Patient Name (Z-A)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Token Cards -->
+      <div class="mt-8">
+        <div id="tokenContainer" class="space-y-4">
+          <!-- Loading message -->
+          <div id="loadingMessage" class="text-center py-12">
+            <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+            <p class="mt-4 text-sm font-semibold text-gray-600">Loading tokens...</p>
+          </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div id="noResults" class="hidden rounded-2xl bg-white p-12 shadow-card text-center">
+          <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-4 text-xl font-bold text-gray-800">No Tokens Found</h3>
+          <p class="mt-2 text-sm text-gray-600">Try adjusting your search or filters</p>
+        </div>
+      </div>
+
+      </div>
+
+      </div>
+
+    <script>
+      // Sample token data (in real app, fetch from backend)
+      let allTokens = [
+        { appointment: 1, date: '2026-01-23', patient: 'John Doe', token: 101, status: 'Waiting', time: '09:00 AM' },
+        { appointment: 1, date: '2026-01-23', patient: 'Jane Smith', token: 102, status: 'Waiting', time: '09:15 AM' },
+        { appointment: 1, date: '2026-01-23', patient: 'Bob Wilson', token: 103, status: 'In Progress', time: '09:30 AM' },
+        { appointment: 2, date: '2026-01-23', patient: 'Alice Brown', token: 104, status: 'Waiting', time: '02:00 PM' },
+        { appointment: 2, date: '2026-01-23', patient: 'Charlie Davis', token: 105, status: 'Completed', time: '02:15 PM' },
+        { appointment: 3, date: '2026-01-24', patient: 'Emma Johnson', token: 106, status: 'Waiting', time: '10:00 AM' },
+        { appointment: 3, date: '2026-01-24', patient: 'David Lee', token: 107, status: 'Waiting', time: '10:15 AM' },
+        { appointment: 4, date: '2026-01-25', patient: 'Sarah Miller', token: 108, status: 'Scheduled', time: '05:00 PM' }
+      ];
+
+      let filteredTokens = [...allTokens];
+
+      // Toggle sort dropdown
+      function toggleSortDropdown() {
+        const dropdown = document.getElementById('sortDropdown');
+        dropdown.classList.toggle('hidden');
+      }
+
+      // Sort tokens
+      function sortBy(criteria) {
+        const [field, order] = criteria.split('-');
+        
+        filteredTokens.sort((a, b) => {
+          let compareA, compareB;
+          
+          if (field === 'appointment' || field === 'token') {
+            compareA = a[field];
+            compareB = b[field];
+          } else if (field === 'date') {
+            compareA = new Date(a.date);
+            compareB = new Date(b.date);
+          } else if (field === 'patient') {
+            compareA = a.patient.toLowerCase();
+            compareB = b.patient.toLowerCase();
+          }
+          
+          if (order === 'asc') {
+            return compareA > compareB ? 1 : -1;
+          } else {
+            return compareA < compareB ? 1 : -1;
+          }
+        });
+        
+        // Update sort label
+        const sortLabels = {
+          'appointment-asc': 'Appointment (Low → High)',
+          'appointment-desc': 'Appointment (High → Low)',
+          'date-asc': 'Date (Oldest First)',
+          'date-desc': 'Date (Newest First)',
+          'patient-asc': 'Patient (A → Z)',
+          'patient-desc': 'Patient (Z → A)',
+          'token-asc': 'Token (Low → High)',
+          'token-desc': 'Token (High → Low)'
+        };
+        
+        document.getElementById('sortSelected').textContent = sortLabels[criteria];
+        document.getElementById('sortSelected').classList.remove('text-gray-600');
+        document.getElementById('sortSelected').classList.add('text-blue-600');
+        document.getElementById('sortDropdown').classList.add('hidden');
+        
+        renderTokens();
+      }
+
+      // Search tokens
+      function searchTokens() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+          filteredTokens = [...allTokens];
+        } else {
+          filteredTokens = allTokens.filter(token => {
+            return (
+              token.appointment.toString().includes(searchTerm) ||
+              token.patient.toLowerCase().includes(searchTerm) ||
+              token.token.toString().includes(searchTerm) ||
+              formatDate(token.date).toLowerCase().includes(searchTerm) ||
+              token.status.toLowerCase().includes(searchTerm)
+            );
+          });
+        }
+        
+        renderTokens();
+      }
+
+      // Format date for display
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        if (date.toDateString() === today.toDateString()) {
+          return 'Today';
+        } else if (date.toDateString() === tomorrow.toDateString()) {
+          return 'Tomorrow';
+        }
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      // Get status badge classes
+      function getStatusBadge(status) {
+        const badges = {
+          'Waiting': 'bg-yellow-100 text-yellow-700',
+          'In Progress': 'bg-blue-100 text-blue-700',
+          'Completed': 'bg-green-100 text-green-700',
+          'Scheduled': 'bg-purple-100 text-purple-700',
+          'Cancelled': 'bg-red-100 text-red-700'
+        };
+        return badges[status] || 'bg-gray-100 text-gray-700';
+      }
+
+      // Render tokens
+      function renderTokens() {
+        const container = document.getElementById('tokenContainer');
+        const noResults = document.getElementById('noResults');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const totalTokens = document.getElementById('totalTokens');
+        
+        // Hide loading
+        loadingMessage.classList.add('hidden');
+        
+        // Update total count
+        totalTokens.textContent = filteredTokens.length;
+        
+        if (filteredTokens.length === 0) {
+          container.classList.add('hidden');
+          noResults.classList.remove('hidden');
+          return;
+        }
+        
+        container.classList.remove('hidden');
+        noResults.classList.add('hidden');
+        container.innerHTML = '';
+        
+        filteredTokens.forEach(token => {
+          const card = document.createElement('div');
+          card.className = 'rounded-2xl bg-white p-6 shadow-card transition hover:shadow-xl';
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-6">
+                <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                  <span class="text-2xl font-extrabold">${token.token}</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-extrabold text-gray-800">${token.patient}</h3>
+                  <div class="mt-2 flex items-center gap-6 text-sm font-semibold text-gray-600">
+                    <div class="flex items-center gap-2">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>${formatDate(token.date)}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>${token.time}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      <span>Appt #${token.appointment}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="rounded-full px-5 py-2 text-sm font-bold ${getStatusBadge(token.status)}">
+                  ${token.status}
+                </span>
+                <button onclick="viewTokenDetails(${token.token})" class="rounded-xl bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-btn transition hover:bg-blue-700">
+                  View
+                </button>
+                <button onclick="deleteToken(${token.token})" class="rounded-xl border-2 border-red-500 p-2 text-red-500 transition hover:bg-red-50">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // View token details
+      function viewTokenDetails(tokenNum) {
+        const token = allTokens.find(t => t.token === tokenNum);
+        if (token) {
+          alert(`Token Details:\n\nToken #: ${token.token}\nPatient: ${token.patient}\nAppointment: #${token.appointment}\nDate: ${formatDate(token.date)}\nTime: ${token.time}\nStatus: ${token.status}`);
+        }
+      }
+
+      // Delete token
+      function deleteToken(tokenNum) {
+        if (confirm(`Are you sure you want to cancel token #${tokenNum}?`)) {
+          const index = allTokens.findIndex(t => t.token === tokenNum);
+          if (index !== -1) {
+            allTokens.splice(index, 1);
+            filteredTokens = [...allTokens];
+            renderTokens();
+          }
+        }
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!event.target.closest('.relative')) {
+          document.getElementById('sortDropdown').classList.add('hidden');
+        }
+      });
+
+      // Initialize
+      setTimeout(() => {
+        filteredTokens = [...allTokens];
+        renderTokens();
+      }, 500);
+
+      // Logout
+      document.querySelector('.bg-logoutRed').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+          window.location.href = '../loginpage/login-doctor.html';
+        }
+      });
+    </script>
+    </div>
+  </body>
+</html>

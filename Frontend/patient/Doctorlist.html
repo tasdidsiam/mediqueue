@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediQueue - Doctors</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+    }
+    
+    .doctor-card {
+      transition: all 0.3s ease;
+    }
+    
+    .doctor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+      animation: modalSlideIn 0.3s ease-out;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .appointment-slot:hover {
+      transform: translateX(5px);
+      transition: transform 0.2s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#e6e6e6] min-h-screen">
+
+  <!-- Top Bar -->
+  <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="dashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+    <div class="flex items-center gap-6">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="Search doctors..." class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none" />
+      </div>
+      <button class="text-gray-700">🔔</button>
+      <img id="userAvatar" src="https://img.freepik.com/premium-vector/round-man-character-mockup-icon-flat-color-round-man-icon-blue-jacket-brown-hair-character-template-vector-icon_774778-2423.jpg" class="w-[55px] h-[55px] rounded-full" />
+      <button data-nav="logout" class="bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer">Logout</button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="px-[60px] flex items-center gap-8">
+    <button data-nav="dashboard" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Dashboard</button>
+    <button data-nav="schedule" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Schedule</button>
+    <button data-tab="doctors" class="nav-tab font-semibold border-b-2 border-black pb-1">Doctors</button>
+    <button data-nav="tokens" class="nav-tab text-gray-600 hover:font-semibold cursor-pointer">Token List</button>
+  </div>
+
+  <!-- Doctors Header -->
+  <div class="px-[60px] mt-6">
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl px-6 py-3 w-64 shadow-lg">
+      <h2 class="text-white font-semibold">Available Doctors</h2>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="px-[60px] mt-6">
+    <div class="bg-white rounded-xl p-4 shadow-md">
+      <div class="flex flex-wrap gap-4 items-center">
+        <select id="specialtyFilter" class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500">
+          <option value="">All Specialties</option>
+          <option value="Neurologist">Neurologist</option>
+          <option value="Gynecologist">Gynecologist</option>
+          <option value="Dermatologist">Dermatologist</option>
+          <option value="Cardiologist">Cardiologist</option>
+          <option value="Pediatrician">Pediatrician</option>
+        </select>
+        
+        <select id="availabilityFilter" class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500">
+          <option value="">All Status</option>
+          <option value="Available">Available</option>
+          <option value="Busy">Busy</option>
+        </select>
+        
+        <button onclick="applyFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+          Apply Filters
+        </button>
+        
+        <button onclick="clearFilters()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400">
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctors List -->
+  <div class="px-[60px] mt-6 pb-8">
+    <div id="doctorsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Doctors will be loaded here dynamically -->
+    </div>
+    
+    <div id="noDoctors" class="text-center py-12 hidden">
+      <div class="text-6xl mb-4">👨‍⚕️</div>
+      <p class="text-gray-500 text-lg">No doctors found</p>
+    </div>
+  </div>
+
+  <!-- Doctor Details Modal -->
+  <div id="doctorModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 modal-content">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <img id="modalDoctorImage" src="" class="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover" />
+            <div>
+              <h2 id="modalDoctorName" class="text-2xl font-bold">Doctor Name</h2>
+              <p id="modalDoctorSpecialty" class="text-blue-100 font-semibold mt-1">Specialty</p>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Available Appointments</h3>
+        
+        <!-- Loading State -->
+        <div id="modalLoading" class="text-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading appointments...</p>
+        </div>
+        
+        <!-- Appointments List -->
+        <div id="modalAppointments" class="space-y-4 hidden">
+          <!-- Appointments will be loaded here -->
+        </div>
+        
+        <!-- No Appointments State -->
+        <div id="modalNoAppointments" class="text-center py-8 hidden">
+          <div class="text-5xl mb-3">📅</div>
+          <p class="text-gray-600 text-lg">No available appointments</p>
+          <p class="text-gray-500 text-sm mt-2">This doctor has no open slots at the moment</p>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="bg-gray-50 p-4 rounded-b-2xl flex justify-end">
+        <button onclick="closeModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="patient.js"></script>
+  <script>
+    let allDoctors = [];
+    let doctorAppointments = {};
+    
+    // Load doctors and their appointments
+    async function loadDoctors() {
+      try {
+        const doctors = await window.PatientDashboard.DoctorService.getAllDoctors();
+        allDoctors = doctors;
+        
+        // Fetch appointments for each doctor
+        for (const doctor of doctors) {
+          await loadDoctorAppointments(doctor._id);
+        }
+        
+        displayDoctors(doctors);
+      } catch (error) {
+        console.error('Error loading doctors:', error);
+        window.PatientDashboard.UIManager.showToast('Error loading doctors', 'error');
+      }
+    }
+    
+    // Load appointments for a specific doctor
+    async function loadDoctorAppointments(doctorId) {
+      try {
+        const response = await fetch(`http://localhost:5000/doctors/${doctorId}/appointments`);
+        const result = await response.json();
+        console.log(`Appointments for doctor ${doctorId}:`, result);
+        if (result.success) {
+          doctorAppointments[doctorId] = result.data;
+        }
+      } catch (error) {
+        console.error(`Error loading appointments for doctor ${doctorId}:`, error);
+      }
+    }
+    
+    // Display doctors
+    function displayDoctors(doctors) {
+      const doctorsList = document.getElementById('doctorsList');
+      const noDoctors = document.getElementById('noDoctors');
+      
+      if (doctors.length === 0) {
+        doctorsList.classList.add('hidden');
+        noDoctors.classList.remove('hidden');
+        return;
+      }
+      
+      doctorsList.classList.remove('hidden');
+      noDoctors.classList.add('hidden');
+      
+      doctorsList.innerHTML = doctors.map(doctor => {
+        const appointments = doctorAppointments[doctor._id] || [];
+        const nextAppointment = appointments[0]; // Get first available appointment
+        
+        return `
+        <div class="doctor-card bg-white rounded-2xl p-6 shadow-lg">
+          <div class="flex justify-center mb-4">
+            <img src="${doctor.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(doctor.name) + '&size=100&background=6366f1&color=fff'}" class="w-20 h-20 rounded-full object-cover" />
+          </div>
+          
+          <h3 class="text-center font-bold text-lg text-gray-800">${doctor.name}</h3>
+          <p class="text-center text-sm text-purple-600 font-semibold mt-2">${doctor.specialization || doctor.specialty || 'General Practitioner'}</p>
+          
+          ${nextAppointment ? `
+            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p class="text-xs text-gray-600 mb-1">Next Available:</p>
+              <p class="text-sm font-semibold text-gray-800">${nextAppointment.title}</p>
+              <p class="text-xs text-gray-500 mt-1">
+                ${new Date(nextAppointment.appointmentDate).toLocaleDateString()} • 
+                ${nextAppointment.availableSlots}/${nextAppointment.maxpatients} slots
+              </p>
+            </div>
+          ` : '<p class="text-xs text-gray-500 mt-4 text-center">No appointments available</p>'}
+          
+          <div class="mt-6 space-y-2">
+            ${nextAppointment ? `
+              <button onclick="bookAppointment('${doctor._id}', '${nextAppointment._id}')" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition">
+                Book Appointment
+              </button>
+            ` : `
+              <button disabled class="w-full bg-gray-300 text-gray-500 py-2 rounded-lg cursor-not-allowed">
+                No Slots Available
+              </button>
+            `}
+            <button onclick="viewDetails('${doctor._id}')" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
+              View Details
+            </button>
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = allDoctors.filter(doctor => 
+        doctor.name.toLowerCase().includes(query) ||
+        doctor.specialty.toLowerCase().includes(query) ||
+        doctor.hospital.toLowerCase().includes(query)
+      );
+      displayDoctors(filtered);
+    });
+    
+    // Apply filters
+    function applyFilters() {
+      const specialty = document.getElementById('specialtyFilter').value;
+      const availability = document.getElementById('availabilityFilter').value;
+      
+      let filtered = allDoctors;
+      
+      if (specialty) {
+        filtered = filtered.filter(doctor => doctor.specialty === specialty);
+      }
+      
+      if (availability) {
+        filtered = filtered.filter(doctor => doctor.status === availability);
+      }
+      
+      displayDoctors(filtered);
+    }
+    
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('specialtyFilter').value = '';
+      document.getElementById('availabilityFilter').value = '';
+      document.getElementById('searchInput').value = '';
+      displayDoctors(allDoctors);
+    }
+    
+    // Book appointment
+    async function bookAppointment(doctorId, appointmentId) {
+      const doctor = allDoctors.find(d => d._id === doctorId);
+      if (!doctor) {
+        alert('Doctor not found');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please login first');
+          window.location.href = '../loginpage/login-patient.html';
+          return;
+        }
+
+        const response = await fetch('http://localhost:5000/patients/book-appointment', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ appointmentId })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          const myToken = result.data.queueTokens[result.data.queueTokens.length - 1];
+          alert(`Appointment booked successfully!\\n\\nDoctor: ${doctor.name}\\nYour Token: #${myToken.tokenNumber}`);
+          // Redirect to schedule page
+          if (confirm('View your schedule?')) {
+            window.location.href = 'userschedule.html';
+          } else {
+            // Reload to update available slots
+            loadDoctors();
+          }
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error booking appointment:', error);
+        alert('Failed to book appointment. Please try again.');
+      }
+    }
+    
+    // View doctor details in modal
+    function viewDetails(doctorId) {
+      const doctor = allDoctors.find(d => d._id === doctorId);
+      if (!doctor) {
+        alert('Doctor not found');
+        return;
+      }
+      
+      // Show modal
+      const modal = document.getElementById('doctorModal');
+      modal.classList.remove('hidden');
+      
+      // Populate doctor info
+      document.getElementById('modalDoctorImage').src = doctor.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(doctor.name) + '&size=100&background=6366f1&color=fff';
+      document.getElementById('modalDoctorName').textContent = doctor.name;
+      document.getElementById('modalDoctorSpecialty').textContent = doctor.specialization || doctor.specialty || 'General Practitioner';
+      
+      // Show loading state
+      document.getElementById('modalLoading').classList.remove('hidden');
+      document.getElementById('modalAppointments').classList.add('hidden');
+      document.getElementById('modalNoAppointments').classList.add('hidden');
+      
+      // Load and display appointments
+      loadModalAppointments(doctorId);
+    }
+    
+    // Load appointments for modal
+    async function loadModalAppointments(doctorId) {
+      try {
+        const appointments = doctorAppointments[doctorId] || [];
+        
+        // Filter only active/scheduled appointments
+        const activeAppointments = appointments.filter(apt => 
+          apt.status === 'scheduled' || apt.status === 'ongoing'
+        );
+        
+        // Hide loading
+        document.getElementById('modalLoading').classList.add('hidden');
+        
+        if (activeAppointments.length === 0) {
+          document.getElementById('modalNoAppointments').classList.remove('hidden');
+          return;
+        }
+        
+        // Show appointments list
+        document.getElementById('modalAppointments').classList.remove('hidden');
+        
+        // Render appointments
+        const appointmentsContainer = document.getElementById('modalAppointments');
+        appointmentsContainer.innerHTML = activeAppointments.map(appointment => {
+          const appointmentDate = new Date(appointment.appointmentDate);
+          const startTime = new Date(appointment.startTime);
+          const endTime = new Date(appointment.endTime);
+          const queueTokens = appointment.queueTokens || [];
+          const maxPatients = appointment.maxpatients || 0;
+          const availableSlots = maxPatients - queueTokens.length;
+          const isFull = availableSlots <= 0 || maxPatients === 0;
+          
+          const statusColors = {
+            'scheduled': { bg: 'bg-yellow-50', border: 'border-yellow-300', badge: 'bg-yellow-500', text: 'text-yellow-700' },
+            'ongoing': { bg: 'bg-green-50', border: 'border-green-300', badge: 'bg-green-500', text: 'text-green-700' }
+          };
+          
+          const colors = statusColors[appointment.status] || statusColors['scheduled'];
+          
+          return `
+            <div class="appointment-slot border-2 ${colors.border} ${colors.bg} rounded-xl p-4 ${isFull ? 'opacity-60' : ''}">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h4 class="font-bold text-lg text-gray-800">${appointment.title}</h4>
+                    <span class="${colors.badge} text-white px-3 py-1 rounded-full text-xs font-bold uppercase">
+                      ${appointment.status}
+                    </span>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div class="flex items-center gap-2 text-sm ${colors.text}">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      <span class="font-semibold">${appointmentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 text-sm ${colors.text}">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span class="font-semibold">${startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                      <span class="text-sm font-semibold text-gray-700">
+                        ${isFull ? 'Full' : `${availableSlots}/${maxPatients} slots available`}
+                      </span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                      </svg>
+                      <span class="text-sm text-gray-600">${queueTokens.length} patients waiting</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="ml-4">
+                  ${isFull ? `
+                    <button disabled class="bg-gray-400 text-white px-6 py-3 rounded-lg cursor-not-allowed font-semibold">
+                      Full
+                    </button>
+                  ` : `
+                    <button onclick="bookAppointmentFromModal('${appointment._id}', '${appointment.title}')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition font-semibold shadow-lg">
+                      Book Now
+                    </button>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Error loading modal appointments:', error);
+        document.getElementById('modalLoading').classList.add('hidden');
+        document.getElementById('modalNoAppointments').classList.remove('hidden');
+      }
+    }
+    
+    // Book appointment from modal
+    async function bookAppointmentFromModal(appointmentId, appointmentTitle) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please login first');
+          window.location.href = '../loginpage/login-patient.html';
+          return;
+        }
+
+        const response = await fetch('http://localhost:5000/patients/book-appointment', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ appointmentId })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          const myToken = result.data.queueTokens[result.data.queueTokens.length - 1];
+          closeModal();
+          alert(`Appointment booked successfully!\n\nAppointment: ${appointmentTitle}\nYour Token: #${myToken.tokenNumber}`);
+          
+          if (confirm('View your schedule?')) {
+            window.location.href = 'userschedule.html';
+          } else {
+            loadDoctors();
+          }
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error booking appointment:', error);
+        alert('Failed to book appointment. Please try again.');
+      }
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('doctorModal').classList.add('hidden');
+    }
+    
+    // Close modal on backdrop click
+    document.getElementById('doctorModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+    
+    // Initialize
+    window.addEventListener('load', loadDoctors);
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Login - MediQueue</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Inter] overflow-hidden">
+
+<div class="w-full h-screen flex justify-between items-center px-[80px]">
+
+    <a href="/" class="text-black">
+        <div class="max-w-[400px]">
+            <h1 class="text-[48px] font-black">MediQueue</h1>
+            <p class="text-[20px] mt-2">Smart Hospital Management</p>
+        </div>
+    </a>
+
+    <div class="w-[360px] bg-white rounded-[18px] px-[30px] py-[35px]
+                text-center shadow-[0_22px_40px_rgba(0,0,0,0.25)]">
+
+        <h2 class="text-[22px] font-bold mb-[24px]">Admin Login</h2>
+
+        <form onsubmit="loginAdmin(event)">
+            <input type="email" id="adminEmail" placeholder="Email" required
+                   class="w-full h-[38px] mb-[14px] px-[12px]
+                          border border-[#cfcfcf] rounded-[6px] text-[13px]">
+
+            <input type="password" id="adminPassword" placeholder="Password" required
+                   class="w-full h-[38px] mb-[14px] px-[12px]
+                          border border-[#cfcfcf] rounded-[6px] text-[13px]">
+
+            <div id="errorMessage" class="hidden mb-[14px] text-red-600 text-[12px] font-semibold"></div>
+
+            <button type="submit" id="adminLoginBtn" class="w-full h-[38px] mt-1 rounded-full bg-black text-white
+                           text-[13px] font-bold cursor-pointer transition
+                           hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed">
+                Login
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+<script src="clientlogin.js"></script>
+    <script>
+(function () {
+  // Clear previous history entry
+  window.history.pushState(null, null, location.href);
+
+  window.onpopstate = function () {
+    window.history.go(1);
+  };
+})();
+</script>
+
+</body>
+</html>

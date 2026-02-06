@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediQueue – Live Session</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+            colors: {
+              appBg: "#D9D9D9",
+              logoutRed: "#A82626",
+              activeBlue: "#8FD2FF",
+              btnBlue: "#3B63F6",
+              consultedGreen: "#0B7A17",
+              warnOlive: "#9AA300",
+              waitRed: "#8B2E2E",
+            },
+            boxShadow: {
+              soft: "0 18px 30px rgba(0,0,0,0.22)",
+              btn: "0 10px 16px rgba(0,0,0,0.20)",
+              card: "0 3px 0 rgba(0,0,0,0.25), 0 10px 22px rgba(0,0,0,0.16)",
+              pill: "0 3px 0 rgba(0,0,0,0.18)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .toast {
+        animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s;
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-[#e6e6e6] min-h-screen font-sans text-black">
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <div class="min-h-screen w-full">
+      <!-- Top Bar -->
+      <div class="flex justify-between items-center px-[60px] py-[20px]">
+    <a href="doctordashboard.html" class="text-black no-underline">
+        <h1 class="text-[32px] font-black">MediQueue</h1>
+        <p class="text-[14px]">Smart Hospital Management</p>
+    </a>
+
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none"
+            />
+          </div>
+          <button class="text-gray-700">🔔</button>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2iQvAPNLkPLllOM8WVfxC7-sZoa7_SfU9g&s"
+            alt="Profile"
+            class="w-[55px] h-[55px] rounded-full"
+          />
+          <button
+            class="bg-logoutRed bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="px-[60px] flex items-center gap-8">
+        <a
+          href="doctordashboard.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Dashboard
+        </a>
+        <a
+          href="schedultab.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Schedule
+        </a>
+        <a
+          href="livesession.html"
+          class="nav-tab font-semibold border-b-2 border-black pb-1"
+        >
+          Live Session
+        </a>
+      </div>
+
+      <div class="px-[60px] pb-[60px]">
+
+      <!-- Live Session Header -->
+      <div class="mt-8">
+        <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-700 p-8 shadow-card text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-3xl font-extrabold">Live Session</h2>
+              <p id="appointmentTitle" class="mt-1 text-xl font-bold opacity-95"></p>
+              <p class="mt-2 text-lg opacity-90">Real-time patient queue management</p>
+            </div>
+            <div class="flex items-center gap-6">
+              <div class="rounded-2xl bg-white/20 backdrop-blur-sm px-6 py-4 text-center">
+                <p class="text-sm font-semibold opacity-90">Patients in Queue</p>
+                <p class="mt-1 text-3xl font-extrabold" id="queueCount">0</p>
+              </div>
+              <div class="rounded-2xl bg-white/20 backdrop-blur-sm px-6 py-4 text-center">
+                <p class="text-sm font-semibold opacity-90">Session Time</p>
+                <p class="mt-1 text-2xl font-extrabold" id="sessionCountdown">--:--</p>
+              </div>
+              <div class="rounded-2xl bg-white/20 backdrop-blur-sm px-6 py-4 text-center">
+                <p class="text-sm font-semibold opacity-90">Avg. Wait Time</p>
+                <p class="mt-1 text-3xl font-extrabold" id="avgWaitTime">15 min</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Message Area -->
+      <div id="statusMessageArea" class="mt-8 hidden">
+        <div id="statusMessageBox" class="rounded-2xl p-12 shadow-card text-center">
+          <svg id="statusIcon" class="mx-auto h-24 w-24 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          </svg>
+          <h3 id="statusTitle" class="text-3xl font-extrabold mb-4"></h3>
+          <p id="statusMessage" class="text-lg mb-6"></p>
+          <button onclick="window.location.href='doctordashboard.html'" class="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-btn">
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Content Wrapper -->
+      <div id="mainContent">
+      <!-- Current Patient Section -->
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <!-- Currently Serving -->
+        <div class="col-span-2 rounded-2xl bg-white p-6 shadow-card">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-extrabold text-gray-800">Currently Serving</h3>
+            <div class="rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+              <span class="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
+              Active
+            </div>
+          </div>
+          
+          <div id="currentPatient" class="rounded-xl bg-gradient-to-r from-green-50 to-green-100 p-6">
+            <div class="flex items-center gap-6">
+              <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-green-600 text-white">
+                <span class="text-4xl font-extrabold" id="currentToken">-</span>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-2xl font-extrabold text-gray-800" id="currentPatientName">No active patient</h4>
+                <div class="mt-3 flex items-center gap-6 text-sm font-semibold text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="currentTime">-</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span id="currentAppointment">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+          <h3 class="text-xl font-extrabold text-gray-800 mb-4">Quick Actions</h3>
+          <div class="space-y-3">
+            <button 
+              onclick="markConsulted()"
+              class="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 p-4 text-white shadow-btn transition hover:from-green-700 hover:to-green-800"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="font-bold">Mark Consulted</span>
+            </button>
+            <button 
+              onclick="callNext()"
+              class="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white shadow-btn transition hover:from-blue-700 hover:to-blue-800"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="font-bold">Call Next Patient</span>
+            </button>
+            <button 
+              onclick="emergencyConsult()"
+              class="w-full flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 p-4 text-white shadow-btn transition hover:from-red-700 hover:to-red-800"
+            >
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span class="font-bold">Emergency</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Up -->
+      <div class="mt-6">
+        <div class="rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 shadow-card border-2 border-blue-200">
+          <div class="flex items-center gap-6">
+            <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-600 text-white">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-blue-700">Next Up</p>
+              <h4 class="text-xl font-extrabold text-gray-800">
+                <span id="nextPatientName">No one in queue</span>
+                <span class="text-blue-600" id="nextToken"></span>
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue List -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-2xl font-extrabold">Patient Queue</h3>
+            <div class="mt-2">
+              <label class="text-sm font-semibold text-gray-600 mr-3">Select Appointment:</label>
+              <select 
+                id="appointmentSelect"
+                onchange="loadAppointmentQueue()"
+                class="h-11 rounded-xl border-2 border-gray-200 px-4 text-sm font-semibold outline-none focus:border-blue-500 cursor-pointer"
+              >
+                <option value="">Select an appointment</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <input 
+              type="text" 
+              id="searchQueue"
+              oninput="searchQueue()"
+              placeholder="Search queue..."
+              class="h-11 w-64 rounded-xl border-2 border-gray-200 px-4 text-sm font-medium outline-none focus:border-blue-500"
+            />
+            <select 
+              id="statusFilter"
+              onchange="filterByStatus()"
+              class="h-11 rounded-xl border-2 border-gray-200 px-4 text-sm font-semibold outline-none focus:border-blue-500 cursor-pointer"
+            >
+              <option value="all">All Status</option>
+              <option value="queued">Queued</option>
+              <option value="completed">Completed</option>
+              <option value="skipped">Skipped</option>
+              <option value="emergency">Emergency</option>
+              <option value="late_penalty">Late Penalty</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white shadow-card overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Token</th>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Patient Name</th>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Arrival Time</th>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Wait Time</th>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Status</th>
+                <th class="px-6 py-4 text-left text-sm font-extrabold text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="queueTableBody" class="divide-y divide-gray-100">
+              <!-- Queue items will be rendered here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyQueue" class="hidden rounded-2xl bg-white p-12 shadow-card text-center">
+          <svg class="mx-auto h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <h3 class="mt-4 text-xl font-bold text-gray-800">No Patients in Queue</h3>
+          <p class="mt-2 text-sm text-gray-600">Queue is empty. Waiting for patients...</p>
+        </div>
+      </div>
+      
+      </div>
+      <!-- End Main Content -->
+      </div>
+
+    <script>
+      // API configuration
+      const API_BASE_URL = 'http://localhost:5000';
+      let currentAppointment = null;
+      let currentAppointmentId = null;
+      let queueData = [];
+      let filteredQueue = [];
+      let allAppointments = [];
+
+      // Toast notification system
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        
+        const colors = {
+          success: 'bg-green-500',
+          error: 'bg-red-500',
+          warning: 'bg-yellow-500',
+          info: 'bg-blue-500'
+        };
+        
+        const icons = {
+          success: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+          error: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+          warning: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+          info: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+        };
+        
+        toast.className = `toast flex items-center gap-3 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg min-w-[300px]`;
+        toast.innerHTML = `
+          <div class="flex-shrink-0">${icons[type]}</div>
+          <p class="font-semibold flex-1">${message}</p>
+          <button onclick="this.parentElement.remove()" class="flex-shrink-0 hover:bg-white hover:bg-opacity-20 rounded p-1 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toast.remove();
+          }
+        }, 3000);
+      }
+
+      // Get token from localStorage
+      function getToken() {
+        return localStorage.getItem('doctorToken');
+      }
+
+      // Get appointment ID from URL
+      function getAppointmentIdFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('appointmentId');
+      }
+
+      // Show status message
+      function showStatusMessage(type, title, message) {
+        const statusArea = document.getElementById('statusMessageArea');
+        const mainContent = document.getElementById('mainContent');
+        const statusBox = document.getElementById('statusMessageBox');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMsg = document.getElementById('statusMessage');
+
+        mainContent.classList.add('hidden');
+        statusArea.classList.remove('hidden');
+
+        if (type === 'scheduled') {
+          statusBox.className = 'rounded-2xl bg-yellow-50 border-2 border-yellow-300 p-12 shadow-card text-center';
+          statusIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
+          statusIcon.className = 'mx-auto h-24 w-24 mb-6 text-yellow-500';
+          statusTitle.className = 'text-3xl font-extrabold mb-4 text-yellow-800';
+          statusMsg.className = 'text-lg mb-6 text-yellow-700';
+        } else if (type === 'completed') {
+          statusBox.className = 'rounded-2xl bg-gray-50 border-2 border-gray-300 p-12 shadow-card text-center';
+          statusIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+          statusIcon.className = 'mx-auto h-24 w-24 mb-6 text-gray-500';
+          statusTitle.className = 'text-3xl font-extrabold mb-4 text-gray-800';
+          statusMsg.className = 'text-lg mb-6 text-gray-700';
+        } else if (type === 'cancelled') {
+          statusBox.className = 'rounded-2xl bg-red-50 border-2 border-red-300 p-12 shadow-card text-center';
+          statusIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+          statusIcon.className = 'mx-auto h-24 w-24 mb-6 text-red-500';
+          statusTitle.className = 'text-3xl font-extrabold mb-4 text-red-800';
+          statusMsg.className = 'text-lg mb-6 text-red-700';
+        }
+
+        statusTitle.textContent = title;
+        statusMsg.textContent = message;
+      }
+
+      // Check appointment status and load accordingly
+      async function checkAndLoadAppointment(appointmentId) {
+        try {
+          const token = getToken();
+          if (!token) {
+            alert('Please login first');
+            window.location.href = '../loginpage/login-doctor.html';
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/today-live`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch appointment');
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            const appointment = result.data.find(apt => apt._id === appointmentId);
+            
+            if (!appointment) {
+              showStatusMessage('cancelled', 'Appointment Not Found', 'This appointment could not be found.');
+              return;
+            }
+
+            currentAppointment = appointment;
+            currentAppointmentId = appointmentId;
+            
+            // Display appointment title
+            document.getElementById('appointmentTitle').textContent = `Live Session: ${appointment.title}`;
+
+            // Check status
+            if (appointment.status === 'scheduled') {
+              showStatusMessage('scheduled', 'Session Not Started Yet', 'This appointment session has not started. Please wait until the scheduled start time.');
+            } else if (appointment.status === 'completed') {
+              showStatusMessage('completed', 'Session Ended', 'This appointment session has been completed.');
+            } else if (appointment.status === 'cancelled') {
+              showStatusMessage('cancelled', 'Session Cancelled', 'This appointment has been cancelled.');
+            } else if (appointment.status === 'ongoing') {
+              // Load the live session
+              document.getElementById('mainContent').classList.remove('hidden');
+              document.getElementById('statusMessageArea').classList.add('hidden');
+              // Hide appointment selector when coming from URL
+              const selector = document.getElementById('appointmentSelect');
+              if (selector && selector.closest('.mt-8')) {
+                selector.closest('.mt-8').querySelector('div').style.display = 'none';
+              }
+              loadAppointmentQueue();
+            }
+          }
+        } catch (error) {
+          console.error('Error checking appointment:', error);
+          showStatusMessage('cancelled', 'Error Loading Session', 'An error occurred while loading the appointment session.');
+        }
+      }
+
+      // Get token from localStorage
+      function getToken() {
+        return localStorage.getItem('doctorToken');
+      }
+
+      // Get token from localStorage
+      function getToken() {
+        return localStorage.getItem('doctorToken');
+      }
+
+      // Load today's appointments
+      async function loadTodayAppointments() {
+        try {
+          const token = getToken();
+          if (!token) {
+            alert('Please login first');
+            window.location.href = '../loginpage/login-doctor.html';
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/today-live`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch appointments');
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            allAppointments = result.data;
+            populateAppointmentSelect();
+            
+            // Auto-select first appointment if available
+            if (allAppointments.length > 0) {
+              document.getElementById('appointmentSelect').value = allAppointments[0]._id;
+              loadAppointmentQueue();
+            }
+          }
+        } catch (error) {
+          console.error('Error loading appointments:', error);
+        }
+      }
+
+      // Populate appointment dropdown
+      function populateAppointmentSelect() {
+        const select = document.getElementById('appointmentSelect');
+        select.innerHTML = '<option value="">Select an appointment</option>';
+        
+        allAppointments.forEach(apt => {
+          const option = document.createElement('option');
+          option.value = apt._id;
+          const startTime = new Date(apt.startTime).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+          const endTime = new Date(apt.endTime).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+          option.textContent = `${apt.title} (${startTime} - ${endTime}) - ${apt.queueTokens.length} patients`;
+          select.appendChild(option);
+        });
+      }
+
+      // Load appointment queue
+      async function loadAppointmentQueue() {
+        const appointmentId = document.getElementById('appointmentSelect').value;
+        if (!appointmentId) {
+          queueData = [];
+          filteredQueue = [];
+          renderQueue();
+          updateCurrentPatient();
+          return;
+        }
+
+        try {
+          const token = getToken();
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/${appointmentId}/queue`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch queue');
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            currentAppointment = result.data;
+            queueData = result.data.queueTokens || [];
+            filteredQueue = [...queueData];
+            updateCurrentPatient();
+            renderQueue();
+          }
+        } catch (error) {
+          console.error('Error loading queue:', error);
+        }
+      }
+
+      // Get status badge
+      function getStatusBadge(status, token) {
+        const badges = {
+          'queued': '<span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-bold text-yellow-700">Queued</span>',
+          'completed': '<span class="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">Completed</span>',
+          'skipped': '<span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">Skipped</span>',
+          'emergency': '<span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">Emergency</span>',
+          'late_penalty': `<span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">Late ${token && token.tokenPenaltyCount ? `(Skip ${token.tokenPenaltyCount})` : ''}</span>`
+        };
+        return badges[status] || '<span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">' + status + '</span>';
+      }
+
+      // Calculate wait time
+      function calculateWaitTime(token) {
+        const scheduled = new Date(token.scheduleStartTime);
+        
+        // For completed or skipped patients, calculate from scheduled time to end time (frozen)
+        if ((token.status === 'completed' || token.status === 'skipped') && token.consultationEndTime) {
+          const endTime = new Date(token.consultationEndTime);
+          const diff = Math.floor((endTime - scheduled) / (1000 * 60));
+          return diff > 0 ? diff : 0;
+        }
+        
+        // For active/queued patients, calculate from scheduled time to now (live)
+        const now = new Date();
+        const diff = Math.floor((now - scheduled) / (1000 * 60));
+        return diff > 0 ? diff : 0;
+      }
+
+      // Update current patient display
+      function updateCurrentPatient() {
+        const current = queueData.find(p => p.status === 'queued');
+        
+        if (current && current.patient) {
+          document.getElementById('currentToken').textContent = current.tokenNumber;
+          document.getElementById('currentPatientName').textContent = current.patient.name || 'Unknown';
+          const scheduleTime = new Date(current.scheduleStartTime).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          document.getElementById('currentTime').textContent = `Scheduled: ${scheduleTime}`;
+          document.getElementById('currentAppointment').textContent = currentAppointment?.title || '-';
+        } else {
+          document.getElementById('currentToken').textContent = '-';
+          document.getElementById('currentPatientName').textContent = 'No active patient';
+          document.getElementById('currentTime').textContent = '-';
+          document.getElementById('currentAppointment').textContent = '-';
+        }
+
+        // Update next patient
+        const queued = queueData.filter(p => p.status === 'queued');
+        if (queued.length > 1) {
+          const next = queued[1];
+          document.getElementById('nextPatientName').textContent = next.patient?.name || 'Unknown';
+          document.getElementById('nextToken').textContent = ` (Token #${next.tokenNumber})`;
+        } else if (queued.length === 1) {
+          document.getElementById('nextPatientName').textContent = 'Last patient in queue';
+          document.getElementById('nextToken').textContent = '';
+        } else {
+          document.getElementById('nextPatientName').textContent = 'No one in queue';
+          document.getElementById('nextToken').textContent = '';
+        }
+
+        // Update queue count
+        const activeCount = queueData.filter(p => ['queued', 'emergency'].includes(p.status)).length;
+        document.getElementById('queueCount').textContent = activeCount;
+
+        // Calculate average wait time
+        const waitingPatients = queueData.filter(p => p.status === 'queued');
+        if (waitingPatients.length > 0) {
+          const totalWait = waitingPatients.reduce((sum, p) => 
+            sum + calculateWaitTime(p), 0);
+          const avgWait = Math.floor(totalWait / waitingPatients.length);
+          document.getElementById('avgWaitTime').textContent = `${avgWait} min`;
+        } else {
+          document.getElementById('avgWaitTime').textContent = '0 min';
+        }
+      }
+
+      // Render queue table
+      function renderQueue() {
+        const tbody = document.getElementById('queueTableBody');
+        const emptyQueue = document.getElementById('emptyQueue');
+        
+        tbody.innerHTML = '';
+        
+        if (filteredQueue.length === 0) {
+          tbody.closest('table').classList.add('hidden');
+          emptyQueue.classList.remove('hidden');
+          return;
+        }
+        
+        tbody.closest('table').classList.remove('hidden');
+        emptyQueue.classList.add('hidden');
+        
+        filteredQueue.forEach((token) => {
+          const row = document.createElement('tr');
+          
+          // Check if token time has expired
+          const now = new Date();
+          const scheduleEnd = new Date(token.scheduleEndTime);
+          const gracePeriod = currentAppointment?.tokenRules?.gracePeriodMinutes || 5;
+          const scheduleEndWithGrace = new Date(scheduleEnd.getTime() + (gracePeriod * 60 * 1000));
+          const isExpired = token.status === 'queued' && now > scheduleEndWithGrace;
+          
+          row.className = `hover:bg-gray-50 transition ${isExpired ? 'bg-red-50' : ''}`;
+          
+          const scheduleTime = new Date(token.scheduleStartTime).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          const waitTime = calculateWaitTime(token);
+          
+          row.innerHTML = `
+            <td class="px-6 py-4">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${isExpired ? 'from-red-500 to-red-600' : 'from-blue-500 to-blue-600'} text-white font-extrabold">
+                ${token.tokenNumber}
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <p class="font-bold text-gray-800">${token.patient?.name || 'Unknown'}</p>
+              <p class="text-xs text-gray-500">${token.patient?.email || ''}</p>
+              ${isExpired ? '<p class="text-xs font-bold text-red-600 mt-1">⏰ Time Expired - Will be penalized</p>' : ''}
+            </td>
+            <td class="px-6 py-4 text-sm font-semibold text-gray-600">${scheduleTime}</td>
+            <td class="px-6 py-4">
+              <span class="text-sm font-bold ${waitTime > 15 ? 'text-red-600' : 'text-gray-600'}">
+                ${waitTime} min
+              </span>
+            </td>
+            <td class="px-6 py-4">${getStatusBadge(token.status, token)}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                ${token.status === 'queued' ? `
+                  <button onclick="markConsulted('${token._id}')" class="rounded-lg bg-green-600 px-4 py-2 text-xs font-bold text-white hover:bg-green-700 transition">
+                    Complete
+                  </button>
+                  <button onclick="markEmergency('${token._id}')" class="rounded-lg bg-orange-600 px-4 py-2 text-xs font-bold text-white hover:bg-orange-700 transition">
+                    Emergency
+                  </button>
+                ` : ''}
+                ${token.status === 'queued' ? `
+                  <button onclick="skipPatient('${token._id}')" class="rounded-lg border-2 border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition">
+                    Skip
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          `;
+          
+          tbody.appendChild(row);
+        });
+      }
+
+      // Mark current patient as consulted
+      async function markConsulted(tokenId) {
+        if (!currentAppointment) {
+          showToast('Please select an appointment first', 'warning');
+          return;
+        }
+
+        // If no tokenId provided, use current queued token
+        if (!tokenId) {
+          const current = queueData.find(p => p.status === 'queued');
+          if (!current) {
+            showToast('No patient currently in consultation', 'warning');
+            return;
+          }
+          tokenId = current._id;
+        }
+
+        try {
+          const token = getToken();
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/${currentAppointment._id}/tokens/${tokenId}/complete`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Failed to mark as completed');
+          }
+
+          if (result.success) {
+            showToast('Patient consultation completed successfully!', 'success');
+            await loadAppointmentQueue();
+          }
+        } catch (error) {
+          console.error('Error marking consulted:', error);
+          showToast(error.message || 'Error marking patient as consulted', 'error');
+        }
+      }
+
+      // Call next patient
+      async function callNext() {
+        if (!currentAppointment) {
+          showToast('Please select an appointment first', 'warning');
+          return;
+        }
+
+        try {
+          const token = getToken();
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/${currentAppointment._id}/call-next`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Failed to call next patient');
+          }
+
+          if (result.success) {
+            // Show skipped patient notification
+            if (result.data.skippedToken) {
+              const s = result.data.skippedToken;
+              const skipMsg = s.tokensSkipped > 1 
+                ? `${s.tokensSkipped} positions` 
+                : `${s.tokensSkipped} position`;
+              showToast(`⚠️ Token #${s.tokenNumber} (${s.patientName}) skipped - Moved after Token #${s.afterTokenNumber}. New time: ${s.newScheduleTime}`, 'warning');
+            }
+            
+            // Show penalties applied to other patients if any
+            if (result.data.penaltiesApplied && result.data.penaltiesApplied.length > 1) {
+              const others = result.data.penaltiesApplied.slice(1);
+              const penaltyMsg = others
+                .map(p => `Token #${p.tokenNumber} (${p.patientName})`)
+                .join(', ');
+              showToast(`Additional penalties: ${penaltyMsg}`, 'info');
+            }
+            
+            // Show next patient called
+            if (result.data.nextToken) {
+              showToast(`✓ Now Calling Token #${result.data.nextToken.tokenNumber}: ${result.data.nextToken.patient?.name}`, 'success');
+            } else {
+              showToast('No more patients in queue', 'info');
+            }
+            
+            await loadAppointmentQueue();
+          }
+        } catch (error) {
+          console.error('Error calling next:', error);
+          showToast(error.message || 'No more patients in queue', 'error');
+        }
+      }
+
+      // Mark as emergency
+      async function markEmergency(tokenId) {
+        if (!currentAppointment || !tokenId) {
+          showToast('Invalid request', 'warning');
+          return;
+        }
+
+        if (!confirm('Mark this patient as emergency? They will be moved to the front of the queue.')) {
+          return;
+        }
+
+        try {
+          const token = getToken();
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/${currentAppointment._id}/tokens/${tokenId}/emergency`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Failed to mark as emergency');
+          }
+
+          if (result.success) {
+            showToast('Patient marked as emergency - moved to front of queue', 'warning');
+            await loadAppointmentQueue();
+          }
+        } catch (error) {
+          console.error('Error marking emergency:', error);
+          showToast(error.message || 'Error marking as emergency', 'error');
+        }
+      }
+
+      // Emergency consult - prompt for token
+      function emergencyConsult() {
+        const tokenNum = prompt('Enter token number for emergency consultation:');
+        if (tokenNum) {
+          const token = queueData.find(t => t.tokenNumber === parseInt(tokenNum));
+          if (token) {
+            markEmergency(token._id);
+          } else {
+            alert('Token not found in current appointment');
+          }
+        }
+      }
+
+      // Skip patient
+      async function skipPatient(tokenId) {
+        if (!currentAppointment || !tokenId) {
+          showToast('Invalid request', 'warning');
+          return;
+        }
+
+        if (!confirm('Skip this patient? They will be marked as no-show.')) {
+          return;
+        }
+
+        try {
+          const token = getToken();
+          const response = await fetch(`${API_BASE_URL}/doctors/appointments/${currentAppointment._id}/tokens/${tokenId}/skip`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          const result = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(result.message || 'Failed to skip patient');
+          }
+
+          if (result.success) {
+            showToast('Patient skipped successfully', 'info');
+            await loadAppointmentQueue();
+          }
+        } catch (error) {
+          console.error('Error skipping patient:', error);
+          showToast(error.message || 'Error skipping patient', 'error');
+        }
+      }
+
+      // Search queue
+      function searchQueue() {
+        const searchTerm = document.getElementById('searchQueue').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        filteredQueue = queueData.filter(token => {
+          const matchesSearch = !searchTerm || 
+            (token.patient?.name || '').toLowerCase().includes(searchTerm) ||
+            token.tokenNumber.toString().includes(searchTerm);
+          
+          const matchesStatus = statusFilter === 'all' || token.status === statusFilter;
+          
+          return matchesSearch && matchesStatus;
+        });
+        
+        renderQueue();
+      }
+
+      // Filter by status
+      function filterByStatus() {
+        searchQueue();
+      }
+
+      // Real-time countdown timer for session
+      function updateSessionCountdown() {
+        if (!currentAppointment) {
+          document.getElementById('sessionCountdown').textContent = '--:--';
+          return;
+        }
+
+        const now = new Date();
+        const startTime = new Date(currentAppointment.startTime);
+        const endTime = new Date(currentAppointment.endTime);
+
+        let countdownText = '';
+        let isUrgent = false;
+
+        if (now < startTime) {
+          // Session hasn't started yet - show time until start
+          const secondsUntil = Math.floor((startTime - now) / 1000);
+          const hours = Math.floor(secondsUntil / 3600);
+          const minutes = Math.floor((secondsUntil % 3600) / 60);
+          const seconds = secondsUntil % 60;
+          
+          if (hours > 0) {
+            countdownText = `Starts in ${hours}h ${minutes}m`;
+          } else if (minutes > 0) {
+            countdownText = `Starts in ${minutes}m ${seconds}s`;
+          } else {
+            countdownText = `Starts in ${seconds}s`;
+            isUrgent = true;
+          }
+        } else if (now >= startTime && now <= endTime) {
+          // Session is ongoing - show time remaining
+          const secondsLeft = Math.floor((endTime - now) / 1000);
+          const hours = Math.floor(secondsLeft / 3600);
+          const minutes = Math.floor((secondsLeft % 3600) / 60);
+          const seconds = secondsLeft % 60;
+          
+          if (secondsLeft <= 0) {
+            countdownText = 'Ended';
+            isUrgent = true;
+          } else if (hours > 0) {
+            countdownText = `${hours}h ${minutes}m left`;
+          } else if (minutes > 0) {
+            countdownText = `${minutes}m ${seconds}s left`;
+            if (minutes < 5) isUrgent = true;
+          } else {
+            countdownText = `${seconds}s left`;
+            isUrgent = true;
+          }
+        } else {
+          // Session has ended
+          countdownText = 'Ended';
+          isUrgent = true;
+        }
+
+        const countdownElement = document.getElementById('sessionCountdown');
+        countdownElement.textContent = countdownText;
+        
+        // Update styling based on urgency
+        if (isUrgent) {
+          countdownElement.classList.add('text-red-200');
+        } else {
+          countdownElement.classList.remove('text-red-200');
+        }
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlAppointmentId = getAppointmentIdFromURL();
+        
+        if (urlAppointmentId) {
+          // Load specific appointment from URL
+          checkAndLoadAppointment(urlAppointmentId);
+        } else {
+          // Normal flow - load all appointments
+          loadTodayAppointments();
+        }
+        
+        // Start countdown timer (updates every second)
+        setInterval(updateSessionCountdown, 1000);
+        updateSessionCountdown(); // Initial call
+        
+        // Auto-refresh queue every 30 seconds
+        setInterval(() => {
+          if (currentAppointmentId) {
+            loadAppointmentQueue();
+          }
+        }, 30000);
+      });
+
+      // Logout
+      document.querySelector('.bg-logoutRed').addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('doctorToken');
+          window.location.href = '../loginpage/login-doctor.html';
+        }
+      });
+    </script>
+    </div>
+  </body>
+</html>

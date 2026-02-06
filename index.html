@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MediQueue</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Nunito+Sans:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#d9d9d9] font-[Inter] overflow-hidden">
+
+<div class="h-screen px-[60px] py-[30px]">
+
+
+    <div class="flex justify-between items-start">
+        <div>
+            <div class="text-[42px] font-black">MediQueue</div>
+            <div class="text-[18px] mt-1.5">Smart Hospital Management</div>
+        </div>
+
+        <div class="flex items-center gap-6 text-[16px] font-medium">
+            <div class="cursor-pointer hover:opacity-70 transition">Home</div>
+            <div class="cursor-pointer hover:opacity-70 transition">About us</div>
+            <div class="cursor-pointer hover:opacity-70 transition">Services</div>
+            <div class="cursor-pointer hover:opacity-70 transition">Community</div>
+
+            <a href="Frontend/loginpage/login.html">
+                <button class="bg-black text-white text-sm px-[18px] py-[6px] rounded-md cursor-pointer transition hover:opacity-90">
+                    Login
+                </button>
+            </a>
+        </div>
+    </div>
+
+
+    <div class="flex justify-between items-start mt-[45px]">
+        <div class="w-[48%]">
+            <div class="text-[37px] font-normal">Get Quick</div>
+            <div class="text-[37px] font-bold">Medical Services</div>
+
+            <p class="text-[15px] leading-[1.6] mt-[18px] max-w-[420px]">
+                Optimize patient flow and improve<br>
+                efficiency with our smart hospital<br>
+                queue management system.
+            </p>
+
+            <a href="Frontend/loginpage/register.html">
+                <button class="mt-5 w-[45%] border border-black rounded-full px-6 py-2.5 text-sm font-bold font-[Nunito Sans] transition hover:bg-black hover:text-white">
+                    Register now
+                </button>
+            </a>
+        </div>
+
+        <div>
+            <img src="Frontend/images/landing-page.png"
+                 class="w-[750px] bg-transparent
+                 drop-shadow-[0_25px_50px_rgba(0,0,0,0.25)]">
+        </div>
+    </div>
+
+
+    <div class="flex justify-between mt-5">
+
+        <div class="relative w-[190px] h-[170px] rounded-[35px] border border-black p-4
+                    cursor-pointer transition hover:-translate-y-1
+                    hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+            <img src="Frontend/images/icon 1.png" class="w-[55px] absolute top-[18px] left-[18px]">
+            <p class="absolute bottom-[18px] left-[18px] text-[17px]">Cardiology</p>
+        </div>
+
+        <div class="relative w-[190px] h-[170px] rounded-[35px] border border-black p-4 cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+            <img src="Frontend/images/icon 2.png" class="w-[55px] absolute top-[18px] left-[18px]">
+            <p class="absolute bottom-[18px] left-[18px] text-[17px]">CT & X-Ray</p>
+        </div>
+
+        <div class="relative w-[190px] h-[170px] rounded-[35px] border border-black p-4 cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+            <img src="Frontend/images/icon 3.png" class="w-[55px] absolute top-[18px] left-[18px]">
+            <p class="absolute bottom-[18px] left-[18px] text-[17px]">Dentistry</p>
+        </div>
+
+        <div class="relative w-[190px] h-[170px] rounded-[35px] border border-black p-4 cursor-pointer transition hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)]">
+            <img src="Frontend/images/icon 4.png" class="w-[55px] absolute top-[18px] left-[18px]">
+            <p class="absolute bottom-[18px] left-[18px] text-[17px] leading-tight">
+                Neurological<br>Treatment
+            </p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

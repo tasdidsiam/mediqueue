@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediQueue – Dashboard</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Auth Guard -->
+  
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] },
+            colors: {
+              appBg: "#D9D9D9",
+              logoutRed: "#A82626",
+              activeBlue: "#8FD2FF",
+            },
+            boxShadow: {
+              soft: "0 18px 30px rgba(0,0,0,0.22)",
+              btn: "0 10px 16px rgba(0,0,0,0.25)",
+              card: "0 3px 0 rgba(0,0,0,0.25), 0 10px 22px rgba(0,0,0,0.16)",
+              stat: "0 3px 0 rgba(0,0,0,0.20), 0 10px 18px rgba(0,0,0,0.12)",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-[#e6e6e6] min-h-screen font-sans text-black">
+    <div class="min-h-screen w-full">
+      <!-- Top Bar -->
+      <div class="flex justify-between items-center px-[60px] py-[20px]">
+        <div>
+          <h1 class="text-[32px] font-black">MediQueue</h1>
+          <p class="text-[14px]">Smart Hospital Management</p>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-80 rounded-full px-5 py-2 shadow-md focus:outline-none"
+            />
+          </div>
+          <button class="text-gray-700">🔔</button>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC2iQvAPNLkPLllOM8WVfxC7-sZoa7_SfU9g&s"
+            alt="Profile"
+            class="w-[55px] h-[55px] rounded-full"
+          />
+          <button
+            class="bg-logoutRed bg-red-700 text-white px-4 py-2 rounded-full text-sm hover:bg-red-800 cursor-pointer"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="px-[60px] flex items-center gap-8">
+        <a
+          href="doctordashboard.html"
+          class="nav-tab font-semibold border-b-2 border-black pb-1"
+        >
+          Dashboard
+        </a>
+        <a
+          href="schedultab.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Schedule
+        </a>
+        <a
+          href="livesession.html"
+          class="nav-tab text-gray-600 hover:font-semibold cursor-pointer"
+        >
+          Live Session
+        </a>
+      </div>
+
+      <div class="px-[60px] pb-[60px]">
+      <!-- Welcome Section -->
+      <div class="mt-8 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 p-8 shadow-card text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 id="welcomeMessage" class="text-3xl font-extrabold">Welcome Back! 👋</h2>
+            <p class="mt-2 text-lg opacity-90">Here's what's happening with your appointments today</p>
+          </div>
+          <div class="rounded-2xl bg-white/20 backdrop-blur-sm p-6">
+            <div class="text-center">
+              <p class="text-sm font-semibold opacity-90">Today's Date</p>
+              <p class="mt-1 text-2xl font-extrabold" id="currentDate"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats cards row -->
+      <div class="mt-8 grid grid-cols-4 gap-6">
+        <!-- Card 1 -->
+        <div class="group rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold opacity-90">Appointments Today</p>
+              <p id="appointmentsToday" class="mt-3 text-5xl font-extrabold">0</p>
+              <p class="mt-2 text-xs font-medium opacity-80">Total sessions scheduled</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="group rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold opacity-90">Total Tokens</p>
+              <p id="totalTokens" class="mt-3 text-5xl font-extrabold">0</p>
+              <p class="mt-2 text-xs font-medium opacity-80">Total patients today</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="group rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold opacity-90">Completed</p>
+              <p id="completedAppointments" class="mt-3 text-5xl font-extrabold">0</p>
+              <p class="mt-2 text-xs font-medium opacity-80">Appointments done</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="group rounded-2xl bg-gradient-to-br from-red-500 to-red-600 p-6 shadow-card text-white transition hover:scale-105 hover:shadow-xl">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm font-semibold opacity-90">Emergency</p>
+              <p id="emergencyTokens" class="mt-3 text-5xl font-extrabold">0</p>
+              <p class="mt-2 text-xs font-medium opacity-80">Priority cases</p>
+            </div>
+            <div class="rounded-xl bg-white/20 p-3">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <!-- Today's Schedule - 2 columns -->
+        <div class="col-span-2 rounded-2xl bg-white p-6 shadow-card">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-extrabold text-gray-800">Today's Schedule</h3>
+            <a href="schedultab.html" class="text-sm font-bold text-blue-600 hover:text-blue-700">View All →</a>
+          </div>
+          <div id="todaySchedule" class="space-y-4">
+            <!-- Schedule items will be dynamically loaded here -->
+          </div>
+          
+          <!-- Empty State -->
+          <div id="emptySchedule" class="hidden rounded-xl bg-gray-50 p-8 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-bold text-gray-800">No Appointments Today</h3>
+            <p class="mt-2 text-sm text-gray-600">You don't have any scheduled appointments for today.</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Recent Activity - 1 column -->
+        <div class="space-y-6">
+          <!-- Quick Actions -->
+          <div class="rounded-2xl bg-white p-6 shadow-card">
+            <h3 class="text-xl font-extrabold text-gray-800 mb-4">Quick Actions</h3>
+            <div class="space-y-3">
+              <button onclick="openCreateModal()" class="w-full flex items-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white shadow-btn transition hover:from-blue-700 hover:to-blue-800">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span class="font-bold">New Appointment</span>
+              </button>
+              <button onclick="window.location.href='schedultab.html'" class="w-full flex items-center gap-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 p-4 text-white shadow-btn transition hover:from-green-700 hover:to-green-800">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+                <span class="font-bold">View Tokens</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="rounded-2xl bg-white p-6 shadow-card">
+            <h3 class="text-xl font-extrabold text-gray-800 mb-4">Recent Activity</h3>
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <div class="rounded-full bg-green-100 p-2">
+                  <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-800">Appointment completed</p>
+                  <p class="text-xs text-gray-500">John Doe • 5 min ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="rounded-full bg-blue-100 p-2">
+                  <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-800">New token issued</p>
+                  <p class="text-xs text-gray-500">Jane Smith • 12 min ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="rounded-full bg-yellow-100 p-2">
+                  <svg class="h-4 w-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-gray-800">Schedule updated</p>
+                  <p class="text-xs text-gray-500">30 min ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Stats Row -->
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+          <div class="flex items-center gap-4">
+            <div class="rounded-xl bg-blue-100 p-4">
+              <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-600">Total Patients</p>
+              <p class="text-3xl font-extrabold text-gray-800">142</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+          <div class="flex items-center gap-4">
+            <div class="rounded-xl bg-green-100 p-4">
+              <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-600">Avg. Wait Time</p>
+              <p class="text-3xl font-extrabold text-gray-800">12 <span class="text-lg">min</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+          <div class="flex items-center gap-4">
+            <div class="rounded-xl bg-purple-100 p-4">
+              <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-600">Satisfaction Rate</p>
+              <p class="text-3xl font-extrabold text-gray-800">98<span class="text-lg">%</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+      <!-- Create Appointment Modal -->
+      <div id="createModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl w-[600px] max-h-[90vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-extrabold">Create New Appointment</h2>
+            <button onclick="closeCreateModal()" class="text-gray-500 hover:text-gray-700">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <form onsubmit="createAppointment(event)" class="space-y-5">
+            <div>
+              <label class="block text-sm font-bold mb-2 text-gray-700">Appointment Title</label>
+              <input 
+                type="text" 
+                id="appointmentTitle" 
+                required
+                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                placeholder="e.g., Morning Consultation"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold mb-2 text-gray-700">Date</label>
+                <input 
+                  type="date" 
+                  id="appointmentDate" 
+                  required
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-2 text-gray-700">Number of Patients</label>
+                <input 
+                  type="number" 
+                  id="patientCount" 
+                  required
+                  min="1"
+                  onchange="updateCalculatedTime()"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                  placeholder="e.g., 5"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold mb-2 text-gray-700">Start Time (9 AM - 7 PM)</label>
+                <input 
+                  type="time" 
+                  id="startTime" 
+                  required
+                  min="09:00"
+                  max="19:00"
+                  onchange="validateTimeInput(this); updateCalculatedTime();"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-2 text-gray-700">End Time (9 AM - 7 PM)</label>
+                <input 
+                  type="time" 
+                  id="endTime" 
+                  required
+                  min="09:00"
+                  max="19:00"
+                  onchange="validateTimeInput(this); updateCalculatedTime();"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <!-- Token Rules Section -->
+            <div class="border-t-2 border-gray-200 pt-5 space-y-4">
+              <h3 class="text-lg font-bold text-gray-800">Token Rules</h3>
+              
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-bold mb-2 text-gray-700">Time per Patient (minutes)</label>
+                  <input 
+                    type="number" 
+                    id="intervalTime" 
+                    required
+                    min="5"
+                    value="15"
+                    onchange="updateCalculatedTime()"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-bold mb-2 text-gray-700">Grace Period (minutes)</label>
+                  <input 
+                    type="number" 
+                    id="gracePeriod" 
+                    required
+                    min="0"
+                    value="5"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-bold mb-2 text-gray-700">Token Skip Penalty</label>
+                  <input 
+                    type="number" 
+                    id="tokenPenalty" 
+                    required
+                    min="1"
+                    value="1"
+                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 outline-none text-sm font-semibold"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Number of positions to skip</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 bg-blue-50 p-4 rounded-xl">
+                <input 
+                  type="checkbox" 
+                  id="autoMarkLate" 
+                  checked
+                  class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+                <label for="autoMarkLate" class="text-sm font-semibold text-gray-700">
+                  Automatically mark patients as late if they don't appear during their time slot
+                </label>
+              </div>
+
+              <div id="timeWarning" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                <p class="text-sm font-bold text-yellow-800">⚠️ Warning: Total required time exceeds appointment duration!</p>
+                <p class="text-xs text-yellow-700 mt-1" id="timeCalculation"></p>
+              </div>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+              <button 
+                type="button"
+                onclick="closeCreateModal()"
+                class="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                class="flex-1 px-6 py-3 rounded-xl bg-blue-600 text-sm font-bold text-white shadow-btn hover:bg-blue-700 transition"
+              >
+                Create Appointment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success Dialog -->
+      <div id="successDialog" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl px-16 py-12 shadow-2xl text-center">
+          <div class="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 mx-auto">
+            <svg class="h-14 w-14" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="mt-6 text-2xl font-bold text-gray-800">Appointment Created Successfully!</h3>
+          <p class="mt-2 text-sm text-gray-600">Your appointment has been scheduled.</p>
+          <button 
+            onclick="closeSuccessDialog()"
+            class="mt-6 px-8 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+
+      <script>
+		  (function () {
+  function checkAuth() {
+    const token =
+      localStorage.getItem("adminToken") ||
+      localStorage.getItem("doctorToken") ||
+      localStorage.getItem("token");
+
+    if (!token) {
+      window.location.replace("../loginpage/login-doctor.html");
+    }
+  }
+
+  // Run on load
+  checkAuth();
+
+  // Run when page comes from cache (back button)
+  window.addEventListener("pageshow", function (event) {
+    if (event.persisted) {
+      checkAuth();
+    }
+  });
+})();
+		  
+		  (function () {
+  const token =
+    localStorage.getItem("adminToken") ||
+    localStorage.getItem("doctorToken") ||
+    localStorage.getItem("token");
+
+  if (!token) {
+    window.location.replace("../loginpage/login-doctor.html");
+  }
+
+  // Prevent back button cache access
+  window.history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    window.history.go(1);
+  };
+})();
+        
+        // API configuration
+        const API_BASE_URL = 'http://localhost:5000';
+
+        // Get token from localStorage
+        function getToken() {
+          return localStorage.getItem('doctorToken');
+        }
+
+        // Load doctor info and update welcome message
+        function loadDoctorInfo() {
+          console.log('=== Loading Doctor Info ===');
+          
+          try {
+            // Check localStorage keys
+            console.log('LocalStorage keys:', Object.keys(localStorage));
+            
+            const userData = localStorage.getItem('userData');
+            console.log('Raw userData from localStorage:', userData);
+            
+            if (!userData) {
+              console.warn('No userData found in localStorage');
+              return;
+            }
+            
+            const user = JSON.parse(userData);
+            console.log('Parsed user object:', user);
+            console.log('User name:', user.name);
+            console.log('User role:', user.role);
+            
+            if (!user.name) {
+              console.warn('User name is missing from userData');
+              return;
+            }
+            
+            const doctorName = user.name;
+            const welcomeElement = document.getElementById('welcomeMessage');
+            
+            if (!welcomeElement) {
+              console.error('Welcome message element not found!');
+              return;
+            }
+            
+            welcomeElement.textContent = `Welcome Back, Dr. ${doctorName}! 👋`;
+            console.log('✓ Welcome message updated successfully to:', welcomeElement.textContent);
+            
+          } catch (error) {
+            console.error('Error loading doctor info:', error);
+            console.error('Error stack:', error.stack);
+          }
+        }
+
+        // Fetch today's stats
+        async function fetchDashboardStats() {
+          try {
+            const token = getToken();
+            if (!token) {
+              alert('Please login first');
+              window.location.href = '../loginpage/login-doctor.html';
+              return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/doctors/getappointmentnumberandpatienttoday`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to fetch stats');
+            }
+
+            const result = await response.json();
+            if (result.success) {
+              const { appointmentsCount, completedAppointments, totalPatients, emergencyTokens } = result.data;
+              
+              // Update dashboard cards
+              document.getElementById('appointmentsToday').textContent = appointmentsCount || 0;
+              document.getElementById('totalTokens').textContent = totalPatients || 0;
+              document.getElementById('completedAppointments').textContent = completedAppointments || 0;
+              document.getElementById('emergencyTokens').textContent = emergencyTokens || 0;
+            }
+          } catch (error) {
+            console.error('Error fetching dashboard stats:', error);
+          }
+        }
+
+        // Set current date
+        const dateElement = document.getElementById('currentDate');
+        const today = new Date();
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        dateElement.textContent = today.toLocaleDateString('en-US', options);
+
+        // Validate time input to ensure it's between 9 AM and 7 PM
+        function validateTimeInput(input) {
+          const value = input.value;
+          if (!value) return;
+          
+          const [hour, minute] = value.split(':').map(Number);
+          
+          // Silently constrain to valid range
+          if (hour < 9) {
+            input.value = '09:00';
+          } else if (hour > 19 || (hour === 19 && minute > 0)) {
+            input.value = '19:00';
+          }
+        }
+
+        // Update calculated time warning
+        function updateCalculatedTime() {
+          const patientCount = parseInt(document.getElementById('patientCount').value) || 0;
+          const intervalTime = parseInt(document.getElementById('intervalTime').value) || 15;
+          const startTime = document.getElementById('startTime').value;
+          const endTime = document.getElementById('endTime').value;
+
+          if (!patientCount || !startTime || !endTime) return;
+
+          // Calculate total time needed
+          const totalNeeded = patientCount * intervalTime;
+
+          // Calculate available time
+          const [startHour, startMin] = startTime.split(':').map(Number);
+          const [endHour, endMin] = endTime.split(':').map(Number);
+          const availableMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+
+          const warning = document.getElementById('timeWarning');
+          const calculation = document.getElementById('timeCalculation');
+
+          if (totalNeeded > availableMinutes) {
+            warning.classList.remove('hidden');
+            calculation.textContent = `Needs ${totalNeeded} minutes (${patientCount} patients × ${intervalTime} min) but only ${availableMinutes} minutes available`;
+          } else {
+            warning.classList.add('hidden');
+          }
+        }
+
+        // Modal functions
+        function openCreateModal() {
+          document.getElementById('createModal').classList.remove('hidden');
+          document.getElementById('createModal').classList.add('flex');
+          // Set default date to today
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('appointmentDate').value = today;
+          updateCalculatedTime();
+        }
+
+        function closeCreateModal() {
+          document.getElementById('createModal').classList.add('hidden');
+          document.getElementById('createModal').classList.remove('flex');
+          // Reset form
+          document.querySelector('#createModal form').reset();
+        }
+
+        function closeSuccessDialog() {
+          document.getElementById('successDialog').classList.add('hidden');
+          document.getElementById('successDialog').classList.remove('flex');
+        }
+
+        // Create appointment function
+        async function createAppointment(event) {
+          event.preventDefault();
+          
+          const title = document.getElementById('appointmentTitle').value;
+          const date = document.getElementById('appointmentDate').value;
+          const startTime = document.getElementById('startTime').value;
+          const endTime = document.getElementById('endTime').value;
+          const patientCount = parseInt(document.getElementById('patientCount').value);
+
+          // Validate time range (9 AM to 7 PM)
+          const [startHour, startMinute] = startTime.split(':').map(Number);
+          const [endHour, endMinute] = endTime.split(':').map(Number);
+          
+          if (startHour < 9 || startHour > 19 || (startHour === 19 && startMinute > 0)) {
+            alert('Start time must be between 9:00 AM and 7:00 PM');
+            return;
+          }
+          
+          if (endHour < 9 || endHour > 19 || (endHour === 19 && endMinute > 0)) {
+            alert('End time must be between 9:00 AM and 7:00 PM');
+            return;
+          }
+
+          // Combine date with time
+          const startDateTime = new Date(`${date}T${startTime}`);
+          const endDateTime = new Date(`${date}T${endTime}`);
+
+          // Get token rules
+          const intervalTime = parseInt(document.getElementById('intervalTime').value);
+          const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+          const tokenPenalty = parseInt(document.getElementById('tokenPenalty').value);
+          const autoMarkLate = document.getElementById('autoMarkLate').checked;
+
+          const appointmentData = {
+            title: title,
+            maxpatients: patientCount,
+            appointmentDate: date,
+            startTime: startDateTime.toISOString(),
+            endTime: endDateTime.toISOString(),
+            intervalTimeMinutes: intervalTime,
+            gracePeriodMinutes: gracePeriod,
+            tokenPenaltyAmount: tokenPenalty,
+            autoMarkLateEnabled: autoMarkLate
+          };
+
+          // Log the data being sent for debugging
+          console.log('Creating appointment with data:', appointmentData);
+
+          try {
+            const token = getToken();
+            if (!token) {
+              alert('Please login first');
+              return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/doctors/create-appointment`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(appointmentData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              // Close modal and show success
+              closeCreateModal();
+              document.getElementById('successDialog').classList.remove('hidden');
+              document.getElementById('successDialog').classList.add('flex');
+              
+              // Refresh dashboard data
+              fetchDashboardStats();
+              fetchTodaySchedule();
+            } else {
+              // Show backend error message
+              alert(result.message || 'Failed to create appointment');
+            }
+          } catch (error) {
+            console.error('Error creating appointment:', error);
+            alert('Error creating appointment. Please try again.');
+          }
+        }
+
+        // Fetch today's appointments
+        async function fetchTodaySchedule() {
+          try {
+            const token = getToken();
+            if (!token) return;
+
+            const response = await fetch(`${API_BASE_URL}/doctors/appointments/today-live`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to fetch schedule');
+            }
+
+            const result = await response.json();
+            if (result.success) {
+              renderSchedule(result.data);
+            }
+          } catch (error) {
+            console.error('Error fetching schedule:', error);
+          }
+        }
+
+        // Render schedule items
+        function renderSchedule(appointments) {
+          const scheduleContainer = document.getElementById('todaySchedule');
+          const emptyState = document.getElementById('emptySchedule');
+
+          if (!appointments || appointments.length === 0) {
+            scheduleContainer.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+          }
+
+          emptyState.classList.add('hidden');
+          
+          const colors = [
+            { bg: 'from-blue-50 to-blue-100', badge: 'bg-blue-600', text: 'text-blue-600' },
+            { bg: 'from-purple-50 to-purple-100', badge: 'bg-purple-600', text: 'text-purple-600' },
+            { bg: 'from-orange-50 to-orange-100', badge: 'bg-orange-600', text: 'text-orange-600' },
+            { bg: 'from-green-50 to-green-100', badge: 'bg-green-600', text: 'text-green-600' },
+            { bg: 'from-pink-50 to-pink-100', badge: 'bg-pink-600', text: 'text-pink-600' }
+          ];
+
+          scheduleContainer.innerHTML = appointments.map((appointment, index) => {
+            const color = colors[index % colors.length];
+            const startTime = new Date(appointment.startTime);
+            const endTime = new Date(appointment.endTime);
+            const hour = startTime.getHours();
+            const hourDisplay = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            
+            const startTimeStr = startTime.toLocaleTimeString('en-US', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: true 
+            });
+            const endTimeStr = endTime.toLocaleTimeString('en-US', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: true 
+            });
+
+            // Use status from API response
+            const status = appointment.status || 'scheduled';
+            let statusBadge = '';
+            let countdownDisplay = '';
+            
+            if (status === 'completed') {
+              statusBadge = '<span class="rounded-full bg-gray-500 px-4 py-1 text-xs font-bold text-white">Completed</span>';
+            } else if (status === 'ongoing') {
+              statusBadge = '<span class="rounded-full bg-green-500 px-4 py-1 text-xs font-bold text-white animate-pulse">Active</span>';
+              countdownDisplay = `<div id="countdown-${appointment._id}" class="text-sm font-bold text-green-700 mt-1">Calculating...</div>`;
+            } else if (status === 'scheduled') {
+              statusBadge = '<span class="rounded-full bg-yellow-500 px-4 py-1 text-xs font-bold text-white">Upcoming</span>';
+              countdownDisplay = `<div id="countdown-${appointment._id}" class="text-sm font-bold text-blue-700 mt-1">Calculating...</div>`;
+            } else if (status === 'cancelled') {
+              statusBadge = '<span class="rounded-full bg-red-500 px-4 py-1 text-xs font-bold text-white">Cancelled</span>';
+            }
+
+            const patientCount = appointment.queueTokens?.length || 0;
+
+            // Determine click behavior based on status
+            let clickHandler = '';
+            let cursorClass = 'cursor-pointer';
+            
+            if (status === 'ongoing') {
+              clickHandler = `onclick="window.location.href='livesession.html?appointmentId=${appointment._id}'"`;
+            } else if (status === 'scheduled') {
+              clickHandler = `onclick="alert('This session has not started yet. Please wait until the scheduled start time.')"`;
+            } else if (status === 'completed') {
+              clickHandler = `onclick="alert('This session has already ended.')"`;
+            } else if (status === 'cancelled') {
+              cursorClass = 'cursor-not-allowed opacity-60';
+              clickHandler = '';
+            }
+
+            // Start countdown timer for active/scheduled appointments
+            if (status === 'ongoing' || status === 'scheduled') {
+              setTimeout(() => {
+                startAppointmentCountdown(appointment._id, startTime, endTime, status);
+              }, 100);
+            }
+
+            return `
+              <div class="flex items-center gap-4 rounded-xl bg-gradient-to-r ${color.bg} p-4 transition hover:shadow-md ${cursorClass}" ${clickHandler}>
+                <div class="flex h-16 w-16 flex-col items-center justify-center rounded-xl ${color.badge} text-white">
+                  <span class="text-xl font-extrabold">${hourDisplay.toString().padStart(2, '0')}</span>
+                  <span class="text-xs font-semibold">${ampm}</span>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-bold text-gray-800">${appointment.title || 'Consultation'}</h4>
+                  <p class="text-sm text-gray-600">${startTimeStr} - ${endTimeStr} • ${patientCount} Patient${patientCount !== 1 ? 's' : ''}</p>
+                  ${countdownDisplay}
+                </div>
+                ${statusBadge}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Real-time countdown timer for appointments
+        function startAppointmentCountdown(appointmentId, startTime, endTime, status) {
+          const countdownElement = document.getElementById(`countdown-${appointmentId}`);
+          if (!countdownElement) return;
+
+          const updateCountdown = () => {
+            const now = new Date();
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+
+            if (status === 'scheduled') {
+              // Show time until session starts
+              const secondsUntil = Math.floor((start - now) / 1000);
+              
+              if (secondsUntil <= 0) {
+                countdownElement.textContent = 'Starting now!';
+                countdownElement.className = 'text-sm font-bold text-green-700 mt-1';
+              } else {
+                const hours = Math.floor(secondsUntil / 3600);
+                const minutes = Math.floor((secondsUntil % 3600) / 60);
+                const seconds = secondsUntil % 60;
+                
+                let timeText = '';
+                if (hours > 0) {
+                  timeText = `Starts in ${hours}h ${minutes}m`;
+                } else if (minutes > 0) {
+                  timeText = `Starts in ${minutes}m ${seconds}s`;
+                } else {
+                  timeText = `Starts in ${seconds}s`;
+                }
+                
+                countdownElement.textContent = timeText;
+                countdownElement.className = secondsUntil < 300 ? 'text-sm font-bold text-orange-600 mt-1 animate-pulse' : 'text-sm font-bold text-blue-700 mt-1';
+              }
+            } else if (status === 'ongoing') {
+              // Show time remaining
+              const secondsLeft = Math.floor((end - now) / 1000);
+              
+              if (secondsLeft <= 0) {
+                countdownElement.textContent = 'Session ended';
+                countdownElement.className = 'text-sm font-bold text-red-700 mt-1';
+              } else {
+                const hours = Math.floor(secondsLeft / 3600);
+                const minutes = Math.floor((secondsLeft % 3600) / 60);
+                const seconds = secondsLeft % 60;
+                
+                let timeText = '';
+                if (hours > 0) {
+                  timeText = `${hours}h ${minutes}m left`;
+                } else if (minutes > 0) {
+                  timeText = `${minutes}m ${seconds}s left`;
+                } else {
+                  timeText = `${seconds}s left`;
+                }
+                
+                countdownElement.textContent = timeText;
+                
+                // Color coding based on time remaining
+                if (secondsLeft < 60) {
+                  countdownElement.className = 'text-sm font-bold text-red-700 mt-1 animate-pulse';
+                } else if (secondsLeft < 300) {
+                  countdownElement.className = 'text-sm font-bold text-orange-600 mt-1';
+                } else {
+                  countdownElement.className = 'text-sm font-bold text-green-700 mt-1';
+                }
+              }
+            }
+          };
+
+          // Update immediately and then every second
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+          console.log('DOM Content Loaded - initializing dashboard');
+          
+          // Load doctor info first
+          loadDoctorInfo();
+          
+          // Then fetch stats and schedule
+          fetchDashboardStats();
+          fetchTodaySchedule();
+          
+          // Auto-refresh every 30 seconds
+          setInterval(() => {
+            fetchDashboardStats();
+            fetchTodaySchedule();
+          }, 30000);
+        });
+
+        // Logout functionality
+        document.querySelector('.bg-logoutRed').addEventListener('click', function() {
+          if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('doctorToken');
+            window.location.href = '../loginpage/login-doctor.html';
+          }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            closeCreateModal();
+            closeSuccessDialog();
+          }
+        });
+      </script>
+    </div>
+  </body>
+</html>
